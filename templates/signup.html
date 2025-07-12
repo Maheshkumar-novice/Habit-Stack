@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
+    <div class="sm:mx-auto sm:w-full sm:max-w-sm">
+        <h2 class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
+            Create your account
+        </h2>
+        <p class="mt-2 text-center text-sm text-gray-600">
+            Already have an account?
+            <a href="/habitstack/login" class="font-semibold leading-6 text-primary-600 hover:text-primary-500">
+                Sign in here
+            </a>
+        </p>
+    </div>
+
+    <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class="mb-4 rounded-md bg-red-50 p-4">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-red-800">{{ messages[0] }}</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <form method="post" action="/habitstack/signup" class="space-y-6">
+            <div>
+                <label for="username" class="block text-sm font-medium leading-6 text-gray-900">Username</label>
+                <div class="mt-2">
+                    <input id="username" 
+                           name="username" 
+                           type="text" 
+                           required 
+                           autofocus
+                           minlength="3"
+                           class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6">
+                </div>
+                <p class="mt-1 text-sm text-gray-500">At least 3 characters</p>
+            </div>
+
+            <div>
+                <label for="password" class="block text-sm font-medium leading-6 text-gray-900">Password</label>
+                <div class="mt-2">
+                    <input id="password" 
+                           name="password" 
+                           type="password" 
+                           required 
+                           minlength="8"
+                           oninput="checkPasswordStrength(this.value)"
+                           class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6">
+                </div>
+                <div id="password-strength" class="mt-2 text-sm">
+                    <div class="space-y-1">
+                        <div id="length-check" class="flex items-center text-gray-400">
+                            <span class="w-4 h-4 mr-2">○</span>
+                            <span>At least 8 characters</span>
+                        </div>
+                        <div id="uppercase-check" class="flex items-center text-gray-400">
+                            <span class="w-4 h-4 mr-2">○</span>
+                            <span>One uppercase letter</span>
+                        </div>
+                        <div id="lowercase-check" class="flex items-center text-gray-400">
+                            <span class="w-4 h-4 mr-2">○</span>
+                            <span>One lowercase letter</span>
+                        </div>
+                        <div id="number-check" class="flex items-center text-gray-400">
+                            <span class="w-4 h-4 mr-2">○</span>
+                            <span>One number</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <button type="submit" 
+                        class="flex w-full justify-center rounded-md bg-primary-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">
+                    Create account
+                </button>
+            </div>
+        </form>
+
+        <p class="mt-10 text-center text-sm text-gray-500">
+            Simple habit tracking, no email required.
+        </p>
+    </div>
+</div>
+
+<script>
+function checkPasswordStrength(password) {
+    // Check length
+    const lengthCheck = document.getElementById('length-check');
+    const lengthValid = password.length >= 8;
+    updateCheckItem(lengthCheck, lengthValid);
+    
+    // Check uppercase
+    const uppercaseCheck = document.getElementById('uppercase-check');
+    const uppercaseValid = /[A-Z]/.test(password);
+    updateCheckItem(uppercaseCheck, uppercaseValid);
+    
+    // Check lowercase
+    const lowercaseCheck = document.getElementById('lowercase-check');
+    const lowercaseValid = /[a-z]/.test(password);
+    updateCheckItem(lowercaseCheck, lowercaseValid);
+    
+    // Check number
+    const numberCheck = document.getElementById('number-check');
+    const numberValid = /[0-9]/.test(password);
+    updateCheckItem(numberCheck, numberValid);
+    
+    // Enable/disable submit button
+    const submitButton = document.querySelector('button[type="submit"]');
+    const allValid = lengthValid && uppercaseValid && lowercaseValid && numberValid;
+    
+    if (allValid) {
+        submitButton.disabled = false;
+        submitButton.classList.remove('opacity-50', 'cursor-not-allowed');
+        submitButton.classList.add('hover:bg-primary-500');
+    } else {
+        submitButton.disabled = true;
+        submitButton.classList.add('opacity-50', 'cursor-not-allowed');
+        submitButton.classList.remove('hover:bg-primary-500');
+    }
+}
+
+function updateCheckItem(element, isValid) {
+    const icon = element.querySelector('span');
+    const text = element.querySelector('span:last-child');
+    
+    if (isValid) {
+        icon.textContent = '✓';
+        element.classList.remove('text-gray-400');
+        element.classList.add('text-green-600');
+    } else {
+        icon.textContent = '○';
+        element.classList.remove('text-green-600');
+        element.classList.add('text-gray-400');
+    }
+}
+
+// Initially disable submit button
+document.addEventListener('DOMContentLoaded', function() {
+    const submitButton = document.querySelector('button[type="submit"]');
+    submitButton.disabled = true;
+    submitButton.classList.add('opacity-50', 'cursor-not-allowed');
+});
+</script>
+{% endblock %}

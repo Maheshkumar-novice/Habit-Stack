@@ -1,0 +1,76 @@
+<!-- Habits Grid -->
+<div id="habits-container" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    {% for habit in habits %}
+    <div id="habit-{{ habit.id }}" class="habit-card relative rounded-xl border bg-white p-4 shadow-sm hover:shadow-md transition-all duration-200 {% if habit.completed_today %}habit-completed border-green-200 bg-gradient-to-br from-green-50 to-emerald-50{% else %}border-gray-200 hover:border-gray-300{% endif %}">
+        <!-- Streak Badge (Top Right) -->
+        {% if habit.current_streak > 0 %}
+        <div class="absolute top-3 right-3">
+            <span class="inline-flex items-center rounded-full bg-orange-100 px-2 py-1 text-xs font-medium text-orange-800">
+                🔥 {{ habit.current_streak }}
+            </span>
+        </div>
+        {% endif %}
+
+        <!-- Main Content -->
+        <div class="{% if habit.current_streak > 0 %}pr-16{% endif %}">
+            <!-- Habit Name -->
+            <h3 class="text-xl font-semibold text-gray-900 mb-3">{{ habit.name }}</h3>
+            
+            <!-- Action Button -->
+            <button 
+                hx-post="/habitstack/toggle-habit/{{ habit.id }}"
+                hx-target="#habit-{{ habit.id }}"
+                hx-swap="outerHTML"
+                class="habit-toggle w-full rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2
+                       {% if habit.completed_today %}
+                       bg-green-100 text-green-800 hover:bg-green-200 focus:ring-green-500 cursor-default py-2 text-sm
+                       {% else %}
+                       bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 transform hover:scale-[1.02] active:scale-[0.98] py-3
+                       {% endif %}">
+                {% if habit.completed_today %}
+                    <span class="flex items-center justify-center">
+                        <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        Completed
+                    </span>
+                {% else %}
+                    Mark Complete
+                {% endif %}
+            </button>
+        </div>
+        
+        <!-- Bottom Stats (Subtle) -->
+        <div class="mt-3 flex items-center justify-between text-xs text-gray-500">
+            <span>{{ habit.points }} point{% if habit.points != 1 %}s{% endif %}</span>
+            {% if habit.description %}
+            <span class="truncate ml-2" title="{{ habit.description }}">{{ habit.description }}</span>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+    
+    {% if not habits %}
+    <div class="col-span-full">
+        <div class="text-center py-12">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">No habits yet</h3>
+            <p class="mt-1 text-sm text-gray-500">Get started by creating your first habit.</p>
+            <div class="mt-6">
+                <button 
+                    hx-get="/habitstack/add-habit-form"
+                    hx-target="#add-habit-modal"
+                    hx-swap="innerHTML"
+                    class="inline-flex items-center rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500">
+                    <svg class="-ml-0.5 mr-1.5 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
+                    </svg>
+                    Add your first habit
+                </button>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>

@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-blue-600 to-purple-700">
+    <!-- Hero Section -->
+    <div class="relative px-6 pt-14 lg:px-8">
+        <div class="mx-auto max-w-2xl py-32 sm:py-48 lg:py-56">
+            <div class="text-center">
+                <h1 class="text-4xl font-bold tracking-tight text-white sm:text-6xl">
+                    Track Your Habits
+                </h1>
+                <p class="mt-6 text-lg leading-8 text-blue-100">
+                    Build lasting routines with HabitStack. Simple, powerful, and designed for consistency.
+                </p>
+                <div class="mt-10 flex items-center justify-center gap-x-6">
+                    <a href="/habitstack/signup" 
+                       class="rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-blue-600 shadow-sm hover:bg-blue-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white transition-all">
+                        Get Started
+                    </a>
+                    <a href="/habitstack/login" 
+                       class="text-sm font-semibold leading-6 text-white hover:text-blue-100 transition-colors">
+                        Sign In <span aria-hidden="true">→</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Features -->
+    <div class="mx-auto max-w-7xl px-6 lg:px-8 pb-24">
+        <div class="mx-auto max-w-2xl lg:text-center">
+            <h2 class="text-base font-semibold leading-7 text-blue-200">Everything you need</h2>
+            <p class="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                Simple habit tracking
+            </p>
+        </div>
+        <div class="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-4xl">
+            <dl class="grid max-w-xl grid-cols-1 gap-x-8 gap-y-10 lg:max-w-none lg:grid-cols-2 lg:gap-y-16">
+                <div class="relative pl-16">
+                    <dt class="text-base font-semibold leading-7 text-white">
+                        <div class="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-lg bg-white">
+                            <span class="text-blue-600 text-xl">🎯</span>
+                        </div>
+                        Daily Tracking
+                    </dt>
+                    <dd class="mt-2 text-base leading-7 text-blue-100">
+                        Check off your habits each day and build momentum with visual progress.
+                    </dd>
+                </div>
+                <div class="relative pl-16">
+                    <dt class="text-base font-semibold leading-7 text-white">
+                        <div class="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-lg bg-white">
+                            <span class="text-blue-600 text-xl">🔥</span>
+                        </div>
+                        Streak Counting
+                    </dt>
+                    <dd class="mt-2 text-base leading-7 text-blue-100">
+                        Watch your streaks grow and stay motivated with consecutive day tracking.
+                    </dd>
+                </div>
+                <div class="relative pl-16">
+                    <dt class="text-base font-semibold leading-7 text-white">
+                        <div class="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-lg bg-white">
+                            <span class="text-blue-600 text-xl">📱</span>
+                        </div>
+                        Mobile First
+                    </dt>
+                    <dd class="mt-2 text-base leading-7 text-blue-100">
+                        Responsive design that works perfectly on your phone, tablet, or desktop.
+                    </dd>
+                </div>
+                <div class="relative pl-16">
+                    <dt class="text-base font-semibold leading-7 text-white">
+                        <div class="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-lg bg-white">
+                            <span class="text-blue-600 text-xl">⚡</span>
+                        </div>
+                        Lightning Fast
+                    </dt>
+                    <dd class="mt-2 text-base leading-7 text-blue-100">
+                        Instant interactions with HTMX - no loading screens, just smooth habit tracking.
+                    </dd>
+                </div>
+            </dl>
+        </div>
+    </div>
+</div>
+{% endblock %}

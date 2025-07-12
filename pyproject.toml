@@ -1,0 +1,11 @@
+[project]
+name = "habitstack"
+version = "0.1.0"
+description = "Cross-platform daily habit tracker"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "flask>=3.0.0",
+    "sqlite-utils>=3.34",
+    "bcrypt>=4.0.0"
+]

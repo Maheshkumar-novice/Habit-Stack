@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Header -->
+<header class="bg-white shadow-sm">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="flex h-16 items-center justify-between">
+            <div class="flex items-center">
+                <h1 class="text-xl font-semibold text-gray-900">HabitStack</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <span class="text-sm text-gray-600">{{ user.username }}</span>
+                <a href="/habitstack/logout" 
+                   class="rounded-md bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 border border-gray-300 transition-colors">
+                    Sign Out
+                </a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Main Content -->
+<main class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Welcome Section -->
+    <div class="mb-8">
+        <h2 class="text-2xl font-bold text-gray-900">Welcome back, {{ user.username }}! 👋</h2>
+        <p class="mt-1 text-sm text-gray-600">{{ today }}</p>
+        <div id="points-display">
+            {% include 'points_display.html' %}
+        </div>
+    </div>
+
+    <!-- Add Habit Button -->
+    <div class="mb-6">
+        <button 
+            hx-get="/habitstack/add-habit-form"
+            hx-target="#add-habit-modal"
+            hx-swap="innerHTML"
+            class="inline-flex items-center rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 transition-colors">
+            <svg class="-ml-0.5 mr-1.5 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
+            </svg>
+            Add Habit
+        </button>
+    </div>
+
+    <!-- Habits Grid -->
+    {% include 'habits_container.html' %}
+</main>
+
+<!-- Modal Container for Add Habit Form -->
+<div id="add-habit-modal"></div>
+{% endblock %}
