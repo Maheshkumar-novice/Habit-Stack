@@ -28,7 +28,7 @@
 
 <!-- Main Content -->
 <main class="mx-auto max-w-lg px-4 sm:px-6 lg:px-8 py-8">
-    <div class="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
+    <div class="bg-white shadow-sm rounded-lg border border-gray-200 p-8">
         <div class="text-center mb-6">
             <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 mb-4">
                 <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -50,7 +50,7 @@
                            id="name" 
                            required
                            value="{{ habit.name }}"
-                           class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6">
+                           class="block w-full rounded-md border-0 px-3 py-2.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6">
                 </div>
             </div>
 
@@ -62,7 +62,7 @@
                            id="description" 
                            value="{{ habit.description or '' }}"
                            placeholder="Why this habit matters to you"
-                           class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6">
+                           class="block w-full rounded-md border-0 px-3 py-2.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6">
                 </div>
             </div>
 
@@ -71,7 +71,7 @@
                 <div class="mt-2">
                     <select name="points" 
                             id="points"
-                            class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6">
+                            class="block w-full rounded-md border-0 px-3 py-2.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6">
                         <option value="1" {% if habit.points == 1 %}selected{% endif %}>1 point</option>
                         <option value="2" {% if habit.points == 2 %}selected{% endif %}>2 points</option>
                         <option value="3" {% if habit.points == 3 %}selected{% endif %}>3 points</option>
