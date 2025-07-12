@@ -10,6 +10,13 @@ A clean, fast, and reliable daily habit tracker built with Flask and modern web 
 - Points system for gamification and motivation
 - Clean card-based interface for easy interaction
 
+### 📝 **Daily Notes & Journaling**
+- Dedicated notes section for daily reflection and journaling
+- Date-based navigation (Previous/Next/Today)
+- Large writing area for comfortable note-taking
+- Recent notes history with previews
+- Complete separation from habit tracking for focused journaling
+
 ### 🔐 **Simple Authentication**
 - Username/password authentication (no email required)
 - Secure password hashing with bcrypt
@@ -70,10 +77,11 @@ HabitStack follows a clean, modular architecture for maintainability:
 
 ```
 ├── app.py              # Main Flask application (56 lines)
-├── models.py           # User & Habit data models (251 lines)
+├── models.py           # User, Habit & DailyNote data models (315 lines)
 ├── database.py         # Connection pooling & optimization (185 lines)
 ├── auth.py             # Authentication routes (60 lines)
-├── habits.py           # Habit management routes (110 lines)
+├── habits.py           # Habit management routes (112 lines)
+├── notes.py            # Daily notes functionality (60 lines)
 ├── utils.py            # Validation & helpers (40 lines)
 └── templates/          # Jinja2 HTML templates
 ```
@@ -82,6 +90,7 @@ HabitStack follows a clean, modular architecture for maintainability:
 - **users** - User accounts with bcrypt password hashing
 - **habits** - User's custom habits with points and descriptions
 - **habit_completions** - Daily completion tracking with date constraints
+- **daily_notes** - User's daily journaling with date-based organization
 
 ### **Key Optimizations**
 - **WAL Mode**: Write-Ahead Logging for concurrent read/write operations
@@ -166,6 +175,8 @@ All routes are prefixed with `/habitstack/`:
 ### **Main Interface**
 - `GET /habitstack/` - Dashboard (main habit tracking)
 - `GET /habitstack/habits` - Habits management page
+- `GET /habitstack/notes` - Daily notes (today's notes)
+- `GET /habitstack/notes/<date>` - View/edit notes for specific date
 
 ### **Habit Management**
 - `GET /habitstack/add-habit-page` - Add new habit form
@@ -174,6 +185,10 @@ All routes are prefixed with `/habitstack/`:
 - `POST /habitstack/edit-habit/<id>` - Update habit handler
 - `POST /habitstack/delete-habit/<id>` - Delete habit handler
 - `POST /habitstack/toggle-habit/<id>` - Toggle habit completion
+
+### **Daily Notes**
+- `POST /habitstack/notes/<date>/save` - Save note for specific date
+- `POST /habitstack/notes/<date>/delete` - Delete note for specific date
 
 ## 🎨 Design Principles
 

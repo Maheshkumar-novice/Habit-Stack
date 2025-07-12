@@ -42,13 +42,20 @@ timeout 10 uv run python app.py
 
 ## Project Structure
 
-- `app.py` - Flask backend with all routes and database logic
+- `app.py` - Main Flask application and configuration (56 lines)
+- `models.py` - User, Habit, and DailyNote data models (315 lines)
+- `database.py` - Connection pooling and optimization (185 lines)
+- `auth.py` - Authentication routes and handlers (60 lines)
+- `habits.py` - Habit management routes (112 lines)
+- `notes.py` - Daily notes functionality (60 lines)
+- `utils.py` - Validation helpers and decorators (40 lines)
 - `templates/` - Jinja2 HTML templates with form-based interactions
   - `base.html` - Base template with Tailwind CSS and PWA setup
   - `dashboard.html` - Main habit tracking dashboard
   - `manage_habits.html` - Habits management interface
   - `add_habit_page.html` - Dedicated add habit page
   - `edit_habit_page.html` - Dedicated edit habit page
+  - `notes.html` - Daily notes journaling interface
   - `landing.html` - Marketing landing page
   - `login.html` / `signup.html` - Authentication pages
   - `habits_container.html` - Habit cards grid component
@@ -75,13 +82,26 @@ timeout 10 uv run python app.py
 - `users` - User accounts with bcrypt password hashing
 - `habits` - User's custom habits with points and descriptions  
 - `habit_completions` - Daily completion tracking with date constraints
+- `daily_notes` - User's daily journaling with date-based organization
+
+**Database Optimizations:**
+- SQLite with WAL mode for better concurrency
+- Connection pooling (max 10 connections) for performance
+- Optimized indexes on frequently queried columns
+- 10MB cache size for faster query execution
 
 **Route Structure (All prefixed with `/habitstack/`):**
+
+*Main Interface:*
 - `/` - Redirects to `/habitstack/`
 - `/habitstack/` - Dashboard (main habit tracking interface)
+
+*Authentication:*
 - `/habitstack/login` - User login
 - `/habitstack/signup` - User registration with password strength validation
 - `/habitstack/logout` - User logout
+
+*Habit Management:*
 - `/habitstack/habits` - Habits management page
 - `/habitstack/add-habit-page` - Add new habit form page
 - `/habitstack/add-habit` (POST) - Create habit handler
@@ -89,6 +109,12 @@ timeout 10 uv run python app.py
 - `/habitstack/edit-habit/<id>` (POST) - Update habit handler
 - `/habitstack/delete-habit/<id>` (POST) - Delete habit handler
 - `/habitstack/toggle-habit/<id>` (POST) - Toggle habit completion
+
+*Daily Notes:*
+- `/habitstack/notes` - Today's notes (default)
+- `/habitstack/notes/<date>` - View/edit notes for specific date
+- `/habitstack/notes/<date>/save` (POST) - Save note for date
+- `/habitstack/notes/<date>/delete` (POST) - Delete note for date
 
 ## Key Features
 
@@ -113,6 +139,14 @@ timeout 10 uv run python app.py
 - Habit statistics (total completions, last completed)
 - Responsive card-based layout
 
+**Daily Notes & Journaling:**
+- Dedicated notes section separate from habit tracking
+- Date-based navigation (Previous/Next/Today)
+- Large textarea for comfortable writing
+- Manual save functionality (no autosave)
+- Recent notes history with previews
+- Complete user data isolation
+
 **Technical Features:**
 - Progressive Web App (PWA) for mobile installation
 - Service worker for offline capability
@@ -131,7 +165,8 @@ timeout 10 uv run python app.py
 **Navigation Pattern:**
 - Dashboard: View and complete habits
 - Manage Habits: Add, edit, delete, and organize habits
-- Clear separation of daily tracking vs management
+- Notes: Daily journaling and reflection
+- Clear separation of tracking, management, and reflection
 
 **Database Operations:**
 - Context managers for proper connection handling
@@ -177,12 +212,31 @@ See `DEPLOYMENT.md` for complete production deployment guide including:
 
 ## Recent Changes
 
-**Major Architecture Change (Latest):**
+**Daily Notes Feature (Latest):**
+- Added dedicated daily notes functionality for user journaling
+- Created separate `notes.py` blueprint with clean route organization
+- Implemented `DailyNote` model with full CRUD operations
+- Added `daily_notes` table with proper user isolation
+- Built responsive notes interface with date navigation
+- Integrated notes into main navigation across all pages
+
+**SQLite Optimizations:**
+- Enabled WAL mode for better concurrent read/write performance
+- Implemented connection pooling (max 10 connections)
+- Added database indexes for frequently queried columns
+- Optimized cache size (10MB) and synchronization settings
+
+**Major Architecture Refactoring:**
+- Split monolithic `app.py` (439 lines) into modular structure
+- Created dedicated blueprints: `auth.py`, `habits.py`, `notes.py`
+- Extracted models into `models.py` with clean data layer
+- Separated database logic into `database.py` with connection pooling
+- Reduced main application to 56 lines (87% reduction)
+
+**HTMX Removal (Earlier):**
 - Completely removed HTMX dependency for better reliability
 - Converted all modal interactions to dedicated pages
 - Replaced AJAX calls with standard form submissions
 - Simplified JavaScript to only PWA service worker registration
-- Fixed navigation reliability issues with explicit routing
-- Reduced bundle size by ~50KB (no HTMX)
 
 This creates a more maintainable, reliable, and universally compatible web application that works consistently across all browsers and devices.
