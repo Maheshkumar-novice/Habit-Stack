@@ -6,7 +6,7 @@ A beautiful, cross-platform daily habit tracker built with Flask and Tailwind CS
 
 - **Beautiful UI**: Modern, mobile-first design with Tailwind CSS
 - **Simple Interactions**: Form-based frontend with instant feedback
-- **Simple Auth**: Hacker News-style username/password (no email required)
+- **Simple Auth**: Username/password authentication (no email required)
 - **Habit Tracking**: Daily check-offs with streak counting and points
 - **Cross-Platform**: Responsive web app with PWA support
 - **PWA Ready**: Install on mobile like a native app
