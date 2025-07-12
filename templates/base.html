@@ -119,21 +119,9 @@
             window.location.reload();
         });
         
-        // Refresh habits when new habit is added
+        // Refresh page when new habit is added
         document.body.addEventListener('refreshHabits', function(evt) {
-            // Check if we're on dashboard and have habits container
-            const habitsContainer = document.getElementById('habits-container');
-            if (habitsContainer) {
-                // Refresh the habits container on dashboard
-                htmx.ajax('GET', window.location.pathname, {
-                    target: '#habits-container',
-                    swap: 'outerHTML',
-                    select: '#habits-container'
-                });
-            } else {
-                // If not on dashboard (probably manage habits page), reload page
-                window.location.reload();
-            }
+            window.location.reload();
         });
         
         // Update points display when habits are toggled
