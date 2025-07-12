@@ -11,6 +11,8 @@ wheels/
 
 # Database
 habitstack.db
+habitstack.db-wal
+habitstack.db-shm
 
 # Development
 .env
