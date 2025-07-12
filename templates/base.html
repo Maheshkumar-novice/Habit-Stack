@@ -24,8 +24,6 @@
         }
     </script>
     
-    <!-- HTMX -->
-    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#2563eb">
@@ -76,24 +74,8 @@
         {% block content %}{% endblock %}
     </div>
     
-    <!-- HTMX Extensions -->
+    <!-- JavaScript -->
     <script>
-        // Add loading states
-        document.body.addEventListener('htmx:beforeRequest', function(evt) {
-            if (evt.target.classList.contains('habit-toggle')) {
-                evt.target.innerHTML = '<div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mx-auto"></div>';
-            }
-        });
-        
-        // Success animations
-        document.body.addEventListener('htmx:afterSwap', function(evt) {
-            if (evt.target.classList.contains('habit-card')) {
-                evt.target.classList.add('animate-pulse');
-                setTimeout(() => {
-                    evt.target.classList.remove('animate-pulse');
-                }, 500);
-            }
-        });
         
         // PWA Service Worker Registration
         if ('serviceWorker' in navigator) {
@@ -108,30 +90,6 @@
             });
         }
         
-        // HTMX Custom Events
-        document.body.addEventListener('closeModal', function(evt) {
-            const habitModal = document.getElementById('habit-modal');
-            if (habitModal) habitModal.innerHTML = '';
-        });
-        
-        // Refresh page when habit is updated
-        document.body.addEventListener('refreshPage', function(evt) {
-            window.location.reload();
-        });
-        
-        // Refresh page when new habit is added
-        document.body.addEventListener('refreshHabits', function(evt) {
-            window.location.reload();
-        });
-        
-        // Update points display when habits are toggled
-        document.body.addEventListener('updatePoints', function(evt) {
-            const points = evt.detail.points;
-            htmx.ajax('GET', `/habitstack/points-display/${points}`, {
-                target: '#points-display',
-                swap: 'innerHTML'
-            });
-        });
     </script>
 </body>
 </html>

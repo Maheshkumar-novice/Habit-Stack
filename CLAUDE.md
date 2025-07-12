@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-HabitStack is a cross-platform daily habit tracker built with Flask, HTMX, Tailwind CSS and Python 3.13. It provides a beautiful responsive web interface with smooth interactions, perfect for mobile and desktop.
+HabitStack is a cross-platform daily habit tracker built with Flask, Tailwind CSS and Python 3.13. It provides a beautiful responsive web interface with smooth interactions, perfect for mobile and desktop.
 
 ## Development Commands
 
@@ -35,7 +35,7 @@ uv add --dev <package-name>
 ## Project Structure
 
 - `app.py` - Flask backend with routes and database logic
-- `templates/` - Jinja2 HTML templates with HTMX interactions
+- `templates/` - Jinja2 HTML templates with form interactions
 - `static/` - PWA assets (manifest, service worker, icons)
 - `pyproject.toml` - Python project configuration and dependencies
 - `habitstack.db` - SQLite database (auto-created on first run)
@@ -45,7 +45,7 @@ uv add --dev <package-name>
 
 **Current Implementation:**
 - Flask backend with Jinja2 templating
-- HTMX for smooth frontend interactions (no build step)
+- Form-based frontend interactions (no build step)
 - Tailwind CSS for beautiful responsive design
 - SQLite database with user accounts and habit tracking
 - Session-based authentication with flash messages
@@ -57,7 +57,7 @@ uv add --dev <package-name>
 
 **Key Features:**
 - Beautiful, mobile-first UI with Tailwind CSS
-- Smooth HTMX interactions without page reloads
+- Simple form interactions with page reloads
 - Simple username/password authentication with strength validation
 - Daily habit checking with instant visual feedback
 - Streak tracking with fire emoji indicators 🔥

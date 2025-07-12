@@ -1,5 +1,5 @@
 """
-HabitStack - Flask backend with HTMX + Tailwind frontend
+HabitStack - Flask backend with Tailwind CSS frontend
 """
 
 from flask import Flask, render_template, request, redirect, url_for, session, flash
@@ -123,30 +123,6 @@ def require_auth():
         return redirect(url_for('login'))
     return user
 
-def get_habits_container(user):
-    """Get habits container HTML for HTMX updates"""
-    today = date.today().isoformat()
-    
-    with get_db() as conn:
-        # Get user's habits with completion status
-        habits = conn.execute("""
-            SELECT h.*, 
-                   CASE WHEN hc.completion_date IS NOT NULL THEN 1 ELSE 0 END as completed_today
-            FROM habits h
-            LEFT JOIN habit_completions hc ON h.id = hc.habit_id AND hc.completion_date = ?
-            WHERE h.user_id = ?
-            ORDER BY h.created_at
-        """, (today, user['id'])).fetchall()
-        
-        # Calculate streaks
-        habits_with_streaks = []
-        for habit in habits:
-            streak = calculate_streak(conn, habit['id'])
-            habit_dict = dict(habit)
-            habit_dict['current_streak'] = streak
-            habits_with_streaks.append(habit_dict)
-    
-    return render_template('habits_container.html', habits=habits_with_streaks)
 
 # Flask app setup
 app = Flask(__name__, static_url_path='/habitstack/static')
@@ -261,14 +237,14 @@ def logout():
     session.pop('user_id', None)
     return redirect(url_for('dashboard'))
 
-@app.route('/habitstack/add-habit-form')
-def add_habit_form():
-    """Return add habit form modal"""
+@app.route('/habitstack/add-habit-page')
+def add_habit_page():
+    """Add habit page"""
     user = get_current_user()
     if not user:
         return redirect(url_for('login'))
     
-    return render_template('add_habit_form.html')
+    return render_template('add_habit_page.html', user=user)
 
 @app.route('/habitstack/add-habit', methods=['POST'])
 def create_habit():
@@ -294,10 +270,8 @@ def create_habit():
         )
         conn.commit()
     
-    # Return success and trigger appropriate actions
-    response = app.make_response("")
-    response.headers['HX-Trigger'] = 'closeModal,refreshHabits'
-    return response
+    # Redirect back to manage habits page
+    return redirect(url_for('manage_habits'))
 
 @app.route('/habitstack/toggle-habit/<int:habit_id>', methods=['POST'])
 def toggle_habit(habit_id):
@@ -341,42 +315,10 @@ def toggle_habit(habit_id):
         
         conn.commit()
         
-        # Calculate updated streak
-        streak = calculate_streak(conn, habit_id)
-        
-        # Calculate new total points for the day (within same connection)
-        today_total_points = 0
-        all_habits_today = conn.execute("""
-            SELECT h.points, 
-                   CASE WHEN hc.completion_date IS NOT NULL THEN 1 ELSE 0 END as completed_today
-            FROM habits h
-            LEFT JOIN habit_completions hc ON h.id = hc.habit_id AND hc.completion_date = ?
-            WHERE h.user_id = ?
-        """, (today, user['id'])).fetchall()
-        
-        for h in all_habits_today:
-            if h['completed_today']:
-                today_total_points += h['points']
-        
-        # Prepare habit data for template
-        habit_data = {
-            'id': habit['id'],
-            'name': habit['name'],
-            'description': habit['description'],
-            'points': habit['points'],
-            'completed_today': completed_today,
-            'current_streak': streak
-        }
     
-    # Return updated habit card with trigger for points update
-    response = app.make_response(render_template('habit_card.html', habit=habit_data))
-    response.headers['HX-Trigger-After-Swap'] = f'{{"updatePoints": {{"points": {today_total_points}}}}}'
-    return response
+    # Redirect back to dashboard
+    return redirect(url_for('dashboard'))
 
-@app.route('/habitstack/points-display/<int:points>')
-def get_points_display(points):
-    """Get updated points display"""
-    return render_template('points_display.html', total_points_today=points)
 
 @app.route('/habitstack/habits')
 def manage_habits():
@@ -411,9 +353,9 @@ def manage_habits():
         habits=habits_with_stats
     )
 
-@app.route('/habitstack/edit-habit-form/<int:habit_id>')
-def edit_habit_form(habit_id):
-    """Return edit habit form modal"""
+@app.route('/habitstack/edit-habit-page/<int:habit_id>')
+def edit_habit_page(habit_id):
+    """Edit habit page"""
     user = get_current_user()
     if not user:
         return redirect(url_for('login'))
@@ -427,7 +369,7 @@ def edit_habit_form(habit_id):
         if not habit:
             return "Habit not found", 404
     
-    return render_template('edit_habit_form.html', habit=dict(habit))
+    return render_template('edit_habit_page.html', user=user, habit=dict(habit))
 
 @app.route('/habitstack/edit-habit/<int:habit_id>', methods=['POST'])
 def update_habit(habit_id):
@@ -463,12 +405,10 @@ def update_habit(habit_id):
         )
         conn.commit()
     
-    # Return success and close modal
-    response = app.make_response("")
-    response.headers['HX-Trigger'] = 'closeModal,refreshPage'
-    return response
+    # Redirect back to the referring page
+    return redirect(url_for('manage_habits'))
 
-@app.route('/habitstack/delete-habit/<int:habit_id>', methods=['DELETE'])
+@app.route('/habitstack/delete-habit/<int:habit_id>', methods=['POST'])
 def delete_habit(habit_id):
     """Delete habit and all its completions"""
     user = get_current_user()
@@ -492,7 +432,8 @@ def delete_habit(habit_id):
         conn.execute("DELETE FROM habits WHERE id = ?", (habit_id,))
         conn.commit()
     
-    return ""  # HTMX will remove the element
+    # Redirect back to the referring page
+    return redirect(url_for('manage_habits'))
 
 if __name__ == "__main__":
     init_db()

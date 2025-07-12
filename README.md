@@ -1,11 +1,11 @@
 # HabitStack <�
 
-A beautiful, cross-platform daily habit tracker built with Flask, HTMX, and Tailwind CSS.
+A beautiful, cross-platform daily habit tracker built with Flask and Tailwind CSS.
 
 ## ( Features
 
 - **Beautiful UI**: Modern, mobile-first design with Tailwind CSS
-- **Smooth Interactions**: HTMX-powered frontend with instant feedback
+- **Simple Interactions**: Form-based frontend with instant feedback
 - **Simple Auth**: Hacker News-style username/password (no email required)
 - **Habit Tracking**: Daily check-offs with streak counting and points
 - **Cross-Platform**: Responsive web app with PWA support
@@ -35,7 +35,7 @@ HabitStack is designed mobile-first with:
 ## =� Tech Stack
 
 - **Backend**: Flask + SQLite
-- **Frontend**: HTMX + Tailwind CSS + Jinja2 templates
+- **Frontend**: Tailwind CSS + Jinja2 templates
 - **Database**: SQLite with bcrypt password hashing
 - **PWA**: Service worker + manifest for mobile installation
 

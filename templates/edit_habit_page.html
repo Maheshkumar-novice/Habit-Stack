@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Header -->
+<header class="bg-white shadow-sm">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="flex h-16 items-center justify-between">
+            <div class="flex items-center space-x-2 sm:space-x-4 min-w-0 flex-1">
+                <a href="/habitstack/habits" class="text-xs sm:text-sm text-gray-600 hover:text-gray-900 transition-colors whitespace-nowrap">
+                    <span class="hidden sm:inline">← Back</span>
+                    <span class="sm:hidden">← Back</span>
+                </a>
+                <h1 class="text-lg sm:text-xl font-semibold text-gray-900 truncate">
+                    Edit Habit
+                </h1>
+            </div>
+            <div class="flex items-center space-x-2 sm:space-x-4">
+                <span class="hidden sm:inline text-sm text-gray-600">{{ user.username }}</span>
+                <a href="/habitstack/logout" 
+                   class="rounded-md bg-white px-2 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm font-medium text-gray-700 hover:bg-gray-50 border border-gray-300 transition-colors">
+                    <span class="hidden sm:inline">Sign Out</span>
+                    <span class="sm:hidden">Out</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Main Content -->
+<main class="mx-auto max-w-lg px-4 sm:px-6 lg:px-8 py-8">
+    <div class="bg-white shadow-sm rounded-lg border border-gray-200 p-6">
+        <div class="text-center mb-6">
+            <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 mb-4">
+                <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                </svg>
+            </div>
+            <h2 class="text-lg font-semibold leading-6 text-gray-900">Edit Habit</h2>
+            <p class="mt-2 text-sm text-gray-500">
+                Update your habit details and settings.
+            </p>
+        </div>
+        
+        <form method="post" action="/habitstack/edit-habit/{{ habit.id }}" class="space-y-4">
+            <div>
+                <label for="name" class="block text-sm font-medium leading-6 text-gray-900">Habit Name</label>
+                <div class="mt-2">
+                    <input type="text" 
+                           name="name" 
+                           id="name" 
+                           required
+                           value="{{ habit.name }}"
+                           class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6">
+                </div>
+            </div>
+
+            <div>
+                <label for="description" class="block text-sm font-medium leading-6 text-gray-900">Description (optional)</label>
+                <div class="mt-2">
+                    <input type="text" 
+                           name="description" 
+                           id="description" 
+                           value="{{ habit.description or '' }}"
+                           placeholder="Why this habit matters to you"
+                           class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6">
+                </div>
+            </div>
+
+            <div>
+                <label for="points" class="block text-sm font-medium leading-6 text-gray-900">Points</label>
+                <div class="mt-2">
+                    <select name="points" 
+                            id="points"
+                            class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6">
+                        <option value="1" {% if habit.points == 1 %}selected{% endif %}>1 point</option>
+                        <option value="2" {% if habit.points == 2 %}selected{% endif %}>2 points</option>
+                        <option value="3" {% if habit.points == 3 %}selected{% endif %}>3 points</option>
+                        <option value="5" {% if habit.points == 5 %}selected{% endif %}>5 points</option>
+                        <option value="10" {% if habit.points == 10 %}selected{% endif %}>10 points</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-3">
+                <a href="/habitstack/habits" 
+                   class="mt-3 sm:mt-0 inline-flex w-full sm:w-auto justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                    Cancel
+                </a>
+                <button type="submit" 
+                        class="inline-flex w-full sm:w-auto justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</main>
+{% endblock %}

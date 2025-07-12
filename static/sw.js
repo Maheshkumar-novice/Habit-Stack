@@ -1,10 +1,9 @@
 // HabitStack Service Worker for PWA functionality
-const CACHE_NAME = 'habitstack-v3';
+const CACHE_NAME = 'habitstack-v4';
 const urlsToCache = [
   '/habitstack/',
   '/habitstack/static/manifest.json',
-  'https://cdn.tailwindcss.com',
-  'https://unpkg.com/htmx.org@1.9.10'
+  'https://cdn.tailwindcss.com'
 ];
 
 // Install event

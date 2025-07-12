@@ -14,27 +14,25 @@
         <h3 class="text-xl font-semibold text-gray-900 mb-3">{{ habit.name }}</h3>
         
         <!-- Action Button -->
-        <button 
-            hx-post="/habitstack/toggle-habit/{{ habit.id }}"
-            hx-target="#habit-{{ habit.id }}"
-            hx-swap="outerHTML"
-            class="habit-toggle w-full rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2
-                   {% if habit.completed_today %}
-                   bg-green-100 text-green-800 hover:bg-green-200 focus:ring-green-500 cursor-default py-2 text-sm
-                   {% else %}
-                   bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 transform hover:scale-[1.02] active:scale-[0.98] py-3
-                   {% endif %}">
-            {% if habit.completed_today %}
-                <span class="flex items-center justify-center">
-                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                    </svg>
-                    Completed
-                </span>
-            {% else %}
-                Mark Complete
-            {% endif %}
-        </button>
+        <form method="post" action="/habitstack/toggle-habit/{{ habit.id }}">
+            <button type="submit" class="w-full rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2
+                       {% if habit.completed_today %}
+                       bg-green-100 text-green-800 hover:bg-green-200 focus:ring-green-500 cursor-default py-2 text-sm
+                       {% else %}
+                       bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 transform hover:scale-[1.02] active:scale-[0.98] py-3
+                       {% endif %}">
+                {% if habit.completed_today %}
+                    <span class="flex items-center justify-center">
+                        <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        Completed
+                    </span>
+                {% else %}
+                    Mark Complete
+                {% endif %}
+            </button>
+        </form>
     </div>
     
     <!-- Bottom Stats (Subtle) -->

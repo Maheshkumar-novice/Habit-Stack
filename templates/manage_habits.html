@@ -37,17 +37,14 @@
 
     <!-- Add New Habit Button -->
     <div class="mb-6">
-        <button 
-            hx-get="/habitstack/add-habit-form"
-            hx-target="#habit-modal"
-            hx-swap="innerHTML"
-            class="inline-flex items-center rounded-md bg-blue-600 px-3 py-2 sm:px-4 sm:py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 transition-colors">
+        <a href="/habitstack/add-habit-page"
+           class="inline-flex items-center rounded-md bg-blue-600 px-3 py-2 sm:px-4 sm:py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 transition-colors">
             <svg class="-ml-0.5 mr-1.5 h-4 w-4 sm:h-5 sm:w-5" viewBox="0 0 20 20" fill="currentColor">
                 <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
             </svg>
             <span class="hidden sm:inline">Add New Habit</span>
             <span class="sm:hidden">Add Habit</span>
-        </button>
+        </a>
     </div>
 
     <!-- Habits Table -->
@@ -86,28 +83,22 @@
                     
                     <!-- Actions -->
                     <div class="flex items-center space-x-2 flex-shrink-0">
-                        <button 
-                            hx-get="/habitstack/edit-habit-form/{{ habit.id }}"
-                            hx-target="#habit-modal"
-                            hx-swap="innerHTML"
-                            class="inline-flex items-center rounded-md bg-white px-2 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm font-medium text-gray-700 hover:bg-gray-50 border border-gray-300 transition-colors">
+                        <a href="/habitstack/edit-habit-page/{{ habit.id }}"
+                           class="inline-flex items-center rounded-md bg-white px-2 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm font-medium text-gray-700 hover:bg-gray-50 border border-gray-300 transition-colors">
                             <svg class="w-3 h-3 sm:w-4 sm:h-4 sm:mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                             </svg>
                             <span class="hidden sm:inline">Edit</span>
-                        </button>
+                        </a>
                         
-                        <button 
-                            hx-delete="/habitstack/delete-habit/{{ habit.id }}"
-                            hx-target="#habit-row-{{ habit.id }}"
-                            hx-swap="delete"
-                            hx-confirm="Are you sure you want to delete '{{ habit.name }}'? This will also delete all completion history."
-                            class="inline-flex items-center rounded-md bg-white px-2 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm font-medium text-red-700 hover:bg-red-50 border border-red-300 transition-colors">
-                            <svg class="w-3 h-3 sm:w-4 sm:h-4 sm:mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                            </svg>
-                            <span class="hidden sm:inline">Delete</span>
-                        </button>
+                        <form method="post" action="/habitstack/delete-habit/{{ habit.id }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete \'{{ habit.name }}\'? This will also delete all completion history.')">
+                            <button type="submit" class="inline-flex items-center rounded-md bg-white px-2 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm font-medium text-red-700 hover:bg-red-50 border border-red-300 transition-colors">
+                                <svg class="w-3 h-3 sm:w-4 sm:h-4 sm:mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                </svg>
+                                <span class="hidden sm:inline">Delete</span>
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -123,21 +114,16 @@
         <h3 class="mt-2 text-sm font-medium text-gray-900">No habits yet</h3>
         <p class="mt-1 text-sm text-gray-500">Get started by creating your first habit.</p>
         <div class="mt-6">
-            <button 
-                hx-get="/habitstack/add-habit-form"
-                hx-target="#habit-modal"
-                hx-swap="innerHTML"
-                class="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500">
+            <a href="/habitstack/add-habit-page"
+               class="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500">
                 <svg class="-ml-0.5 mr-1.5 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
                 </svg>
                 Create your first habit
-            </button>
+            </a>
         </div>
     </div>
     {% endif %}
 </main>
 
-<!-- Modal Container -->
-<div id="habit-modal"></div>
 {% endblock %}
