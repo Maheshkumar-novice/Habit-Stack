@@ -294,9 +294,9 @@ def create_habit():
         )
         conn.commit()
     
-    # Return updated habits container for HTMX
-    response = app.make_response(get_habits_container(user))
-    response.headers['HX-Trigger'] = 'closeModal'
+    # Return success and trigger appropriate actions
+    response = app.make_response("")
+    response.headers['HX-Trigger'] = 'closeModal,refreshHabits'
     return response
 
 @app.route('/habitstack/toggle-habit/<int:habit_id>', methods=['POST'])

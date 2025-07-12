@@ -110,15 +110,30 @@
         
         // HTMX Custom Events
         document.body.addEventListener('closeModal', function(evt) {
-            const addModal = document.getElementById('add-habit-modal');
             const habitModal = document.getElementById('habit-modal');
-            if (addModal) addModal.innerHTML = '';
             if (habitModal) habitModal.innerHTML = '';
         });
         
         // Refresh page when habit is updated
         document.body.addEventListener('refreshPage', function(evt) {
             window.location.reload();
+        });
+        
+        // Refresh habits when new habit is added
+        document.body.addEventListener('refreshHabits', function(evt) {
+            // Check if we're on dashboard and have habits container
+            const habitsContainer = document.getElementById('habits-container');
+            if (habitsContainer) {
+                // Refresh the habits container on dashboard
+                htmx.ajax('GET', window.location.pathname, {
+                    target: '#habits-container',
+                    swap: 'outerHTML',
+                    select: '#habits-container'
+                });
+            } else {
+                // If not on dashboard (probably manage habits page), reload page
+                window.location.reload();
+            }
         });
         
         // Update points display when habits are toggled
