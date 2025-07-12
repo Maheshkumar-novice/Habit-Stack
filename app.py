@@ -378,6 +378,122 @@ def get_points_display(points):
     """Get updated points display"""
     return render_template('points_display.html', total_points_today=points)
 
+@app.route('/habitstack/habits')
+def manage_habits():
+    """Habits management page"""
+    user = get_current_user()
+    if not user:
+        return redirect(url_for('login'))
+    
+    with get_db() as conn:
+        # Get all user's habits with stats
+        habits = conn.execute("""
+            SELECT h.*, 
+                   COUNT(hc.id) as total_completions,
+                   MAX(hc.completion_date) as last_completed
+            FROM habits h
+            LEFT JOIN habit_completions hc ON h.id = hc.habit_id
+            WHERE h.user_id = ?
+            GROUP BY h.id
+            ORDER BY h.created_at
+        """, (user['id'],)).fetchall()
+        
+        # Calculate current streaks for each habit
+        habits_with_stats = []
+        for habit in habits:
+            streak = calculate_streak(conn, habit['id'])
+            habit_dict = dict(habit)
+            habit_dict['current_streak'] = streak
+            habits_with_stats.append(habit_dict)
+    
+    return render_template('manage_habits.html', 
+        user=user, 
+        habits=habits_with_stats
+    )
+
+@app.route('/habitstack/edit-habit-form/<int:habit_id>')
+def edit_habit_form(habit_id):
+    """Return edit habit form modal"""
+    user = get_current_user()
+    if not user:
+        return redirect(url_for('login'))
+    
+    with get_db() as conn:
+        habit = conn.execute(
+            "SELECT * FROM habits WHERE id = ? AND user_id = ?",
+            (habit_id, user['id'])
+        ).fetchone()
+        
+        if not habit:
+            return "Habit not found", 404
+    
+    return render_template('edit_habit_form.html', habit=dict(habit))
+
+@app.route('/habitstack/edit-habit/<int:habit_id>', methods=['POST'])
+def update_habit(habit_id):
+    """Update existing habit"""
+    user = get_current_user()
+    if not user:
+        return redirect(url_for('login'))
+    
+    name = request.form.get('name', '').strip()
+    if not name:
+        return "Habit name is required", 400
+    
+    description = request.form.get('description', '').strip()
+    try:
+        points = int(request.form.get('points', 1))
+    except ValueError:
+        points = 1
+    
+    with get_db() as conn:
+        # Verify habit belongs to user
+        existing = conn.execute(
+            "SELECT id FROM habits WHERE id = ? AND user_id = ?",
+            (habit_id, user['id'])
+        ).fetchone()
+        
+        if not existing:
+            return "Habit not found", 404
+        
+        # Update habit
+        conn.execute(
+            "UPDATE habits SET name = ?, description = ?, points = ? WHERE id = ?",
+            (name, description or None, points, habit_id)
+        )
+        conn.commit()
+    
+    # Return success and close modal
+    response = app.make_response("")
+    response.headers['HX-Trigger'] = 'closeModal,refreshPage'
+    return response
+
+@app.route('/habitstack/delete-habit/<int:habit_id>', methods=['DELETE'])
+def delete_habit(habit_id):
+    """Delete habit and all its completions"""
+    user = get_current_user()
+    if not user:
+        return redirect(url_for('login'))
+    
+    with get_db() as conn:
+        # Verify habit belongs to user
+        habit = conn.execute(
+            "SELECT id FROM habits WHERE id = ? AND user_id = ?",
+            (habit_id, user['id'])
+        ).fetchone()
+        
+        if not habit:
+            return "Habit not found", 404
+        
+        # Delete completions first (foreign key constraint)
+        conn.execute("DELETE FROM habit_completions WHERE habit_id = ?", (habit_id,))
+        
+        # Delete habit
+        conn.execute("DELETE FROM habits WHERE id = ?", (habit_id,))
+        conn.commit()
+    
+    return ""  # HTMX will remove the element
+
 if __name__ == "__main__":
     init_db()
     app.run(host="0.0.0.0", port=8000, debug=True)

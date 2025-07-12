@@ -63,6 +63,12 @@
         .habit-completed .streak-badge {
             animation: sparkle 2s infinite;
         }
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
     </style>
 </head>
 <body class="h-full">
@@ -104,7 +110,15 @@
         
         // HTMX Custom Events
         document.body.addEventListener('closeModal', function(evt) {
-            document.getElementById('add-habit-modal').innerHTML = '';
+            const addModal = document.getElementById('add-habit-modal');
+            const habitModal = document.getElementById('habit-modal');
+            if (addModal) addModal.innerHTML = '';
+            if (habitModal) habitModal.innerHTML = '';
+        });
+        
+        // Refresh page when habit is updated
+        document.body.addEventListener('refreshPage', function(evt) {
+            window.location.reload();
         });
         
         // Update points display when habits are toggled
