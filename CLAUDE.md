@@ -42,17 +42,33 @@ timeout 10 uv run python app.py
 
 ## Project Structure
 
-- `app.py` - Main Flask application and configuration (59 lines)
-- `models.py` - User, Habit, DailyNote, Birthday, and Watchlist data models (654 lines)
-- `database.py` - Connection pooling and optimization with all tables (226 lines)
-- `auth.py` - Authentication routes and handlers (60 lines)
+### Core Application Files
+- `app.py` - Main Flask application and configuration (64 lines)
+- `database.py` - Connection pooling and optimization with all tables (242 lines)
+- `utils.py` - Validation helpers and decorators (41 lines)
+
+### Modular Blueprint Architecture
+- `auth.py` - Authentication routes and handlers (61 lines)
 - `habits.py` - Habit management routes (112 lines)
-- `notes.py` - Daily notes functionality (60 lines)
+- `notes.py` - Daily notes functionality (69 lines)
 - `birthdays.py` - Birthday reminder routes (142 lines)
 - `watchlist.py` - Movies/series watchlist routes (205 lines)
-- `utils.py` - Validation helpers and decorators (40 lines)
+- `settings.py` - Data management and account settings (166 lines)
+
+### Data Models (Modular Architecture)
+- `models/` - Modular model package (697 total lines)
+  - `models/__init__.py` - Package exports and documentation (19 lines)
+  - `models/user.py` - User authentication and account management (110 lines)
+  - `models/habit.py` - Habit tracking and completion logic (211 lines)
+  - `models/note.py` - Daily journaling functionality (69 lines)
+  - `models/birthday.py` - Birthday reminder system (139 lines)
+  - `models/watchlist.py` - Movies/series tracking (213 lines)
+  - `models/data_manager.py` - Data export/import functionality (319 lines)
+
+### Templates (Responsive UI)
 - `templates/` - Jinja2 HTML templates with form-based interactions
   - `base.html` - Base template with Tailwind CSS and PWA setup
+  - `navbar.html` - Unified responsive navigation component with hamburger menu
   - `dashboard.html` - Main habit tracking dashboard
   - `manage_habits.html` - Habits management interface
   - `add_habit_page.html` - Dedicated add habit page
@@ -64,11 +80,14 @@ timeout 10 uv run python app.py
   - `watchlist.html` - Movies/series watchlist main page
   - `add_movie_page.html` - Add movie/series form page
   - `edit_movie_page.html` - Edit movie/series form page
+  - `settings.html` - Comprehensive settings and data management page
   - `landing.html` - Marketing landing page showcasing all features
   - `login.html` / `signup.html` - Authentication pages
   - `habits_container.html` - Habit cards grid component
   - `habit_card.html` - Individual habit card component
   - `points_display.html` - Points counter component
+
+### Supporting Files
 - `static/` - PWA assets (manifest, service worker, icons)
 - `pyproject.toml` - Python project configuration and dependencies
 - `habitstack.db` - SQLite database (auto-created on first run)
@@ -77,17 +96,17 @@ timeout 10 uv run python app.py
 
 ## Architecture Notes
 
-**Current Implementation (Post-HTMX Removal):**
-- Pure Flask backend with Jinja2 templating
+**Current Implementation:**
+- Pure Flask backend with modular Blueprint architecture
 - Standard HTML form submissions with server-side redirects
 - Tailwind CSS for responsive design (CDN-based, no build step)
-- SQLite database with proper user isolation
+- SQLite database with proper user isolation and soft delete capability
 - Session-based authentication with bcrypt password hashing
 - Progressive Web App (PWA) capabilities
-- Zero JavaScript dependencies (except PWA service worker)
+- Minimal JavaScript (only PWA service worker and hamburger menu)
 
 **Database Schema:**
-- `users` - User accounts with bcrypt password hashing
+- `users` - User accounts with bcrypt password hashing and soft delete support
 - `habits` - User's custom habits with points and descriptions  
 - `habit_completions` - Daily completion tracking with date constraints
 - `daily_notes` - User's daily journaling with date-based organization
@@ -97,21 +116,29 @@ timeout 10 uv run python app.py
 **Database Optimizations:**
 - SQLite with WAL mode for better concurrency
 - Connection pooling (max 10 connections) for performance
-- Optimized indexes on frequently queried columns
+- Optimized indexes on frequently queried columns including soft delete
 - 10MB cache size for faster query execution
+- Automatic schema migrations for backward compatibility
 
-**Route Structure (All prefixed with `/habitstack/`):**
+**Navigation Architecture:**
+- Unified `navbar.html` component used across all pages
+- Responsive hamburger menu for mobile with slide-out drawer
+- Desktop horizontal navigation with proper spacing
+- Visual indicators for current page highlighting
+- User profile section in mobile menu with avatar
 
-*Main Interface:*
+## Route Structure (All prefixed with `/habitstack/`)
+
+### Main Interface
 - `/` - Redirects to `/habitstack/`
 - `/habitstack/` - Dashboard (main habit tracking interface)
 
-*Authentication:*
+### Authentication
 - `/habitstack/login` - User login
 - `/habitstack/signup` - User registration with password strength validation
 - `/habitstack/logout` - User logout
 
-*Habit Management:*
+### Habit Management
 - `/habitstack/habits` - Habits management page
 - `/habitstack/add-habit-page` - Add new habit form page
 - `/habitstack/add-habit` (POST) - Create habit handler
@@ -120,13 +147,13 @@ timeout 10 uv run python app.py
 - `/habitstack/delete-habit/<id>` (POST) - Delete habit handler
 - `/habitstack/toggle-habit/<id>` (POST) - Toggle habit completion
 
-*Daily Notes:*
+### Daily Notes
 - `/habitstack/notes` - Today's notes (default)
 - `/habitstack/notes/<date>` - View/edit notes for specific date
 - `/habitstack/notes/<date>/save` (POST) - Save note for date
 - `/habitstack/notes/<date>/delete` (POST) - Delete note for date
 
-*Birthday Reminders:*
+### Birthday Reminders
 - `/habitstack/birthdays` - Birthday reminders main page
 - `/habitstack/add-birthday-page` - Add new birthday form page
 - `/habitstack/add-birthday` (POST) - Create birthday handler
@@ -134,7 +161,7 @@ timeout 10 uv run python app.py
 - `/habitstack/edit-birthday/<id>` (POST) - Update birthday handler
 - `/habitstack/delete-birthday/<id>` (POST) - Delete birthday handler
 
-*Movies/Series Watchlist:*
+### Movies/Series Watchlist
 - `/habitstack/watchlist` - Watchlist main page organized by status
 - `/habitstack/add-movie-page` - Add movie/series form page
 - `/habitstack/add-movie` (POST) - Create watchlist item handler
@@ -144,30 +171,40 @@ timeout 10 uv run python app.py
 - `/habitstack/mark-completed/<id>` (POST) - Mark item as completed
 - `/habitstack/update-episode/<id>` (POST) - Update episode progress
 
+### Settings & Data Management
+- `/habitstack/settings` - Comprehensive settings page
+- `/habitstack/export` (POST) - Export all user data as JSON
+- `/habitstack/import` (POST) - Import user data from JSON file
+- `/habitstack/update-password` (POST) - Update user password
+- `/habitstack/delete-account` (POST) - Soft delete user account
+
 ## Key Features
 
-**User Experience:**
-- Beautiful, mobile-first responsive design
+### User Experience
+- Beautiful, mobile-first responsive design with hamburger navigation
 - Simple form-based interactions with immediate feedback
-- Dedicated pages for habit management (no modals)
+- Dedicated pages for all management functions (no modals)
 - Reliable navigation with explicit routing
 - Instant visual feedback through page reloads
+- Professional user profile display in mobile menu
 
-**Authentication & Security:**
+### Authentication & Security
 - Username/password authentication (no email required)
 - Password strength validation with visual feedback
 - Session-based authentication with secure cookies
 - User data isolation and privacy protection
 - CSRF protection through Flask forms
+- Soft delete functionality for account management
+- Secure password update with current password verification
 
-**Habit Tracking:**
+### Habit Tracking
 - Daily habit completion tracking
 - Streak calculation with fire emoji indicators 🔥
 - Points system for gamification with daily totals
 - Habit statistics (total completions, last completed)
 - Responsive card-based layout
 
-**Daily Notes & Journaling:**
+### Daily Notes & Journaling
 - Dedicated notes section separate from habit tracking
 - Date-based navigation (Previous/Next/Today)
 - Large textarea for comfortable writing
@@ -175,7 +212,7 @@ timeout 10 uv run python app.py
 - Recent notes history with previews
 - Complete user data isolation
 
-**Birthday Reminders:**
+### Birthday Reminders
 - Today's birthdays with special highlighting
 - Upcoming birthdays with countdown (next 30 days)
 - Relationship type categorization (Family, Friend, Colleague, etc.)
@@ -183,7 +220,7 @@ timeout 10 uv run python app.py
 - Smart date calculations for year transitions
 - Clean management interface with full CRUD operations
 
-**Movies/Series Watchlist:**
+### Movies/Series Watchlist
 - Status-based organization (Want to Watch, Currently Watching, Completed)
 - Episode progress tracking for TV series
 - Genre categorization and priority levels
@@ -192,40 +229,59 @@ timeout 10 uv run python app.py
 - Comprehensive statistics dashboard
 - Support for movies, series, documentaries, anime, and mini-series
 
-**Technical Features:**
+### Data Management & Settings
+- **Complete JSON Export** - Download all user data with timestamp
+- **Full Data Import** - Replace all data from backup file with validation
+- **Data Portability** - JSON format for migration and analysis
+- **Password Management** - Secure password updates with strength validation
+- **Account Deletion** - Professional soft delete with multiple safeguards
+- **Backup Recommendations** - Clear warnings and export reminders
+- **Safety Features** - Double confirmation for destructive actions
+
+### Technical Features
 - Progressive Web App (PWA) for mobile installation
 - Service worker for offline capability
 - Responsive design that works on all screen sizes
 - No build system required - runs on single Python server
 - Form validation and error handling
+- Modular architecture for maintainability
 
 ## Development Patterns
 
-**Form Handling:**
+### Form Handling
 - All interactions use standard HTML forms with POST methods
 - Server-side validation and error handling
 - Explicit redirects after successful operations
-- Flash messages for user feedback
+- Flash messages for user feedback with proper categorization
 
-**Navigation Pattern:**
+### Navigation Pattern
 - Dashboard: View and complete habits (primary focus)
-- Manage Habits: Add, edit, delete, and organize habits
+- Habits: Add, edit, delete, and organize habits
 - Notes: Daily journaling and reflection
 - Birthdays: Birthday reminders and relationship tracking
 - Watchlist: Movies/series entertainment tracking
+- Settings: Data management and account preferences
 - Clear separation of all features with consistent navigation
 
-**Database Operations:**
+### Database Operations
 - Context managers for proper connection handling
 - User ownership verification on all operations
 - Proper error handling and validation
 - Foreign key constraints for data integrity
+- Soft delete implementation for data preservation
 
-**Responsive Design:**
+### Responsive Design
 - Mobile-first approach with Tailwind CSS
 - Breakpoint usage: `sm:` (640px+) for tablet/desktop
 - Touch-friendly button sizes and spacing
 - Readable text scaling across devices
+- Hamburger menu for mobile navigation
+
+### Code Organization
+- Modular Blueprint architecture for feature separation
+- Unified model package with focused responsibilities
+- Centralized navigation component for consistency
+- Clean separation of concerns across layers
 
 ## Production Deployment
 
@@ -238,71 +294,78 @@ See `DEPLOYMENT.md` for complete production deployment guide including:
 
 ## Development Notes
 
-**Code Style:**
+### Code Style
 - Follow existing patterns for consistency
 - Use proper Jinja2 templating conventions
 - Maintain responsive design principles
 - Keep forms simple and accessible
+- Follow modular architecture patterns
 
-**Testing:**
+### Testing
 - Test all form submissions end-to-end
 - Verify responsive design on different screen sizes  
 - Check authentication flows and user isolation
 - Validate habit tracking logic and streak calculations
+- Test data export/import workflows
+- Verify soft delete functionality
 
-**Common Issues to Check:**
+### Common Issues to Check
 - Ensure all routes are prefixed with `/habitstack/`
 - Verify form action URLs are correct
 - Check user authentication on protected routes
 - Test navigation between pages works correctly
 - Validate responsive design on mobile devices
+- Ensure data export before account deletion
 
-## Recent Changes
+## Recent Major Updates
 
-**Movies/Series Watchlist Feature (Latest):**
-- Added comprehensive entertainment tracking functionality
-- Created separate `watchlist.py` blueprint (205 lines) with full CRUD operations
-- Implemented `Watchlist` model with 9 specialized methods for status management
-- Added `watchlist` table with status, progress, rating, and episode tracking
-- Built organized interface with sections for Want to Watch, Currently Watching, Completed
-- Integrated episode progress tracking for TV series
-- Added statistics dashboard and quick action functionality
-- Updated landing page to showcase as "Personal Life Organizer" with all 4 features
+### Comprehensive Account Management (Latest)
+- Added password update functionality with current password verification
+- Implemented soft delete account system with data preservation
+- Created professional danger zone UI with multiple confirmation layers
+- Enhanced settings page with complete account management features
+- Added 316+ lines of security and account management functionality
 
-**Birthday Reminders Feature:**
+### Data Export/Import System
+- Built comprehensive JSON export of all user data
+- Implemented full data import with replace functionality
+- Created professional settings page for data management
+- Added robust validation and error handling
+- Supports backup/restore and data portability use cases
+
+### Navigation Architecture Refactoring
+- Split monolithic 653-line models.py into focused modular packages
+- Created unified navbar.html component for consistency
+- Implemented responsive hamburger menu for mobile
+- Added user profile section to mobile navigation
+- Enhanced mobile UX with cleaner header layout
+
+### Entertainment Watchlist Feature
+- Added comprehensive movies/series tracking functionality
+- Created status-based organization (Want to Watch, Currently Watching, Completed)
+- Implemented episode progress tracking for TV series
+- Built statistics dashboard and quick action functionality
+- Integrated watchlist navigation across all pages
+
+### Birthday Reminders Feature
 - Added birthday tracking functionality for relationship management
-- Created separate `birthdays.py` blueprint (142 lines) with full CRUD operations
-- Implemented `Birthday` model with Python-based date calculations
-- Added `birthdays` table with relationship types and personal notes
-- Built interface with today's birthdays highlighting and upcoming countdown
+- Created today's birthdays highlighting and upcoming countdown
+- Implemented relationship types and personal notes
 - Smart date handling for year transitions and recurring birthdays
 - Integrated birthday navigation across all pages
 
-**Daily Notes Feature:**
+### Daily Notes Feature
 - Added dedicated daily notes functionality for user journaling
-- Created separate `notes.py` blueprint with clean route organization
-- Implemented `DailyNote` model with full CRUD operations
-- Added `daily_notes` table with proper user isolation
-- Built responsive notes interface with date navigation
+- Created date-based navigation with Previous/Next/Today
+- Implemented manual save functionality with recent notes history
+- Built responsive notes interface with large textarea
 - Integrated notes into main navigation across all pages
 
-**SQLite Optimizations:**
+### SQLite & Architecture Optimizations
 - Enabled WAL mode for better concurrent read/write performance
 - Implemented connection pooling (max 10 connections)
 - Added database indexes for frequently queried columns
 - Optimized cache size (10MB) and synchronization settings
+- Split monolithic application into modular Blueprint architecture
 
-**Major Architecture Refactoring:**
-- Split monolithic `app.py` (439 lines) into modular structure
-- Created dedicated blueprints: `auth.py`, `habits.py`, `notes.py`
-- Extracted models into `models.py` with clean data layer
-- Separated database logic into `database.py` with connection pooling
-- Reduced main application to 56 lines (87% reduction)
-
-**HTMX Removal (Earlier):**
-- Completely removed HTMX dependency for better reliability
-- Converted all modal interactions to dedicated pages
-- Replaced AJAX calls with standard form submissions
-- Simplified JavaScript to only PWA service worker registration
-
-This creates HabitStack as a comprehensive personal life organizer with four core features: habit tracking, daily notes, birthday reminders, and entertainment watchlist - all working together in a maintainable, reliable, and universally compatible web application.
+This creates HabitStack as a comprehensive personal life organizer with five core features: habit tracking, daily notes, birthday reminders, entertainment watchlist, and data management - all working together in a maintainable, reliable, secure, and universally compatible web application with enterprise-level account management capabilities.
