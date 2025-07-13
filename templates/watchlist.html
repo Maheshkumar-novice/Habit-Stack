@@ -108,6 +108,11 @@
                            class="inline-flex items-center rounded-md bg-white px-2 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 border border-gray-300 transition-colors">
                             Edit
                         </a>
+                        <form method="post" action="/habitstack/delete-movie/{{ item.id }}" style="display: inline;" onsubmit="return confirm('Remove {{ item.title }} from watchlist?')">
+                            <button type="submit" class="inline-flex items-center rounded-md bg-white px-2 py-1.5 text-xs font-medium text-red-700 hover:bg-red-50 border border-red-300 transition-colors">
+                                Remove
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -228,6 +233,11 @@
                            class="inline-flex items-center rounded-md bg-white px-2 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 border border-gray-300 transition-colors">
                             Edit
                         </a>
+                        <form method="post" action="/habitstack/delete-movie/{{ item.id }}" style="display: inline;" onsubmit="return confirm('Remove {{ item.title }} from watchlist?')">
+                            <button type="submit" class="inline-flex items-center rounded-md bg-white px-2 py-1.5 text-xs font-medium text-red-700 hover:bg-red-50 border border-red-300 transition-colors">
+                                Remove
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
