@@ -153,14 +153,15 @@
         </div>
     </div>
 
-    <!-- Additional Settings Sections (Future) -->
+    <!-- Account Settings Section -->
     <div class="mt-8 bg-white shadow-sm rounded-lg border border-gray-200">
         <div class="px-6 py-4 border-b border-gray-200">
-            <h3 class="text-lg font-medium text-gray-900">Account</h3>
-            <p class="mt-1 text-sm text-gray-600">Manage your account preferences</p>
+            <h3 class="text-lg font-medium text-gray-900">Account Settings</h3>
+            <p class="mt-1 text-sm text-gray-600">Manage your account information and security</p>
         </div>
         
-        <div class="p-6">
+        <div class="p-6 space-y-8">
+            <!-- Username Info -->
             <div class="flex items-center justify-between">
                 <div>
                     <h4 class="text-base font-medium text-gray-900">Username</h4>
@@ -169,6 +170,168 @@
                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                     Active
                 </span>
+            </div>
+
+            <!-- Divider -->
+            <div class="border-t border-gray-200"></div>
+
+            <!-- Password Update Section -->
+            <div>
+                <div class="flex items-start space-x-4">
+                    <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100">
+                        <svg class="h-6 w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="text-base font-medium text-gray-900">Update Password</h4>
+                        <p class="mt-1 text-sm text-gray-600">
+                            Change your account password. Make sure to use a strong password with at least 8 characters.
+                        </p>
+                        
+                        <div class="mt-4">
+                            <form method="post" action="/habitstack/update-password" class="space-y-4">
+                                <div>
+                                    <label for="current_password" class="block text-sm font-medium text-gray-700">
+                                        Current Password
+                                    </label>
+                                    <div class="mt-1">
+                                        <input type="password" 
+                                               name="current_password" 
+                                               id="current_password" 
+                                               required
+                                               class="block w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm sm:leading-6">
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                    <div>
+                                        <label for="new_password" class="block text-sm font-medium text-gray-700">
+                                            New Password
+                                        </label>
+                                        <div class="mt-1">
+                                            <input type="password" 
+                                                   name="new_password" 
+                                                   id="new_password" 
+                                                   required
+                                                   class="block w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm sm:leading-6">
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label for="confirm_password" class="block text-sm font-medium text-gray-700">
+                                            Confirm New Password
+                                        </label>
+                                        <div class="mt-1">
+                                            <input type="password" 
+                                                   name="confirm_password" 
+                                                   id="confirm_password" 
+                                                   required
+                                                   class="block w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm sm:leading-6">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Password Requirements -->
+                                <div class="text-xs text-gray-500 space-y-1">
+                                    <p>Password requirements:</p>
+                                    <ul class="list-disc list-inside space-y-1 ml-2">
+                                        <li>At least 8 characters long</li>
+                                        <li>Contains at least one uppercase letter</li>
+                                        <li>Contains at least one lowercase letter</li>
+                                        <li>Contains at least one number</li>
+                                    </ul>
+                                </div>
+
+                                <button type="submit" 
+                                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                    </svg>
+                                    Update Password
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Divider -->
+            <div class="border-t border-gray-200"></div>
+
+            <!-- Delete Account Section -->
+            <div>
+                <div class="flex items-start space-x-4">
+                    <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-red-100">
+                        <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="text-base font-medium text-gray-900">Delete Account</h4>
+                        <p class="mt-1 text-sm text-gray-600">
+                            Permanently delete your account and all associated data. This action cannot be undone.
+                        </p>
+                        
+                        <!-- Danger Warning Box -->
+                        <div class="mt-4 p-4 bg-red-50 border border-red-200 rounded-md">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                                <div class="ml-3">
+                                    <h5 class="text-sm font-medium text-red-800">Danger Zone</h5>
+                                    <p class="mt-1 text-sm text-red-700">
+                                        Once you delete your account, there is no going back. Your account will be deactivated and all your data will be inaccessible.
+                                        <strong>Make sure to export your data first</strong> if you want to keep a backup.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <form method="post" action="/habitstack/delete-account" class="space-y-4" onsubmit="return confirm('Are you absolutely sure you want to delete your account? This action cannot be undone.')">
+                                <div>
+                                    <label for="password" class="block text-sm font-medium text-gray-700">
+                                        Enter your password to confirm
+                                    </label>
+                                    <div class="mt-1">
+                                        <input type="password" 
+                                               name="password" 
+                                               id="password" 
+                                               required
+                                               class="block w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-red-600 sm:text-sm sm:leading-6">
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label for="confirm_delete" class="block text-sm font-medium text-gray-700">
+                                        Type "DELETE" to confirm
+                                    </label>
+                                    <div class="mt-1">
+                                        <input type="text" 
+                                               name="confirm_delete" 
+                                               id="confirm_delete" 
+                                               required
+                                               placeholder="Type DELETE here"
+                                               class="block w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-red-600 sm:text-sm sm:leading-6">
+                                    </div>
+                                    <p class="mt-1 text-xs text-gray-500">This must match exactly: DELETE</p>
+                                </div>
+
+                                <button type="submit" 
+                                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                    </svg>
+                                    Delete My Account
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

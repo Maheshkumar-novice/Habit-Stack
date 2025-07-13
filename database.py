@@ -143,7 +143,8 @@ def init_db():
                 id INTEGER PRIMARY KEY,
                 username TEXT UNIQUE NOT NULL,
                 password_hash TEXT NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                deleted_at TIMESTAMP NULL
             );
             
             CREATE TABLE IF NOT EXISTS habits (
@@ -209,6 +210,14 @@ def init_db():
             );
         """)
         
+        # Add deleted_at column to existing users table if it doesn't exist
+        try:
+            conn.execute("ALTER TABLE users ADD COLUMN deleted_at TIMESTAMP NULL")
+            conn.commit()
+        except sqlite3.OperationalError:
+            # Column already exists, ignore
+            pass
+        
         # Create indexes for better performance
         conn.executescript("""
             CREATE INDEX IF NOT EXISTS idx_habits_user_id ON habits(user_id);
@@ -220,6 +229,7 @@ def init_db():
             CREATE INDEX IF NOT EXISTS idx_watchlist_user_id ON watchlist(user_id);
             CREATE INDEX IF NOT EXISTS idx_watchlist_status ON watchlist(status);
             CREATE INDEX IF NOT EXISTS idx_watchlist_type ON watchlist(type);
+            CREATE INDEX IF NOT EXISTS idx_users_deleted ON users(deleted_at);
         """)
         
         conn.commit()

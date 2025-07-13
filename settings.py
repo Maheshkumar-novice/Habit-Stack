@@ -2,13 +2,14 @@
 Settings routes for HabitStack - Data management and user preferences
 """
 
-from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, send_file
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, send_file, session
 from datetime import datetime
 import json
 import tempfile
 import os
 from models.data_manager import DataExporter, DataImporter
-from utils import get_current_user, require_auth
+from models import User
+from utils import get_current_user, require_auth, validate_password_strength
 
 # Create settings blueprint
 settings_bp = Blueprint('settings', __name__, url_prefix='/habitstack')
@@ -94,3 +95,72 @@ def import_data():
         flash(f'Import failed: {str(e)}', 'error')
     
     return redirect(url_for('settings.settings'))
+
+@settings_bp.route('/update-password', methods=['POST'])
+@require_auth
+def update_password():
+    """Update user password"""
+    user = get_current_user()
+    
+    current_password = request.form.get('current_password', '')
+    new_password = request.form.get('new_password', '')
+    confirm_password = request.form.get('confirm_password', '')
+    
+    # Validate input
+    if not current_password:
+        flash('Current password is required', 'error')
+        return redirect(url_for('settings.settings'))
+    
+    if not new_password:
+        flash('New password is required', 'error')
+        return redirect(url_for('settings.settings'))
+    
+    if new_password != confirm_password:
+        flash('New passwords do not match', 'error')
+        return redirect(url_for('settings.settings'))
+    
+    # Validate new password strength
+    is_valid, error_message = validate_password_strength(new_password)
+    if not is_valid:
+        flash(f'Password validation failed: {error_message}', 'error')
+        return redirect(url_for('settings.settings'))
+    
+    # Update password
+    success = User.update_password(user['id'], current_password, new_password)
+    
+    if success:
+        flash('Password updated successfully!', 'success')
+    else:
+        flash('Current password is incorrect', 'error')
+    
+    return redirect(url_for('settings.settings'))
+
+@settings_bp.route('/delete-account', methods=['POST'])
+@require_auth
+def delete_account():
+    """Soft delete user account"""
+    user = get_current_user()
+    
+    password = request.form.get('password', '')
+    confirm_delete = request.form.get('confirm_delete', '')
+    
+    # Validate input
+    if not password:
+        flash('Password is required to delete account', 'error')
+        return redirect(url_for('settings.settings'))
+    
+    if confirm_delete != 'DELETE':
+        flash('Please type "DELETE" to confirm account deletion', 'error')
+        return redirect(url_for('settings.settings'))
+    
+    # Attempt to soft delete the account
+    success = User.soft_delete(user['id'], password)
+    
+    if success:
+        # Clear the session
+        session.clear()
+        flash('Your account has been deleted successfully. You can no longer log in with this account.', 'success')
+        return redirect(url_for('main.dashboard'))
+    else:
+        flash('Password is incorrect', 'error')
+        return redirect(url_for('settings.settings'))
