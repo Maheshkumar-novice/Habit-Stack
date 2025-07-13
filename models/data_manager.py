@@ -7,6 +7,7 @@ from typing import Dict, List, Any
 from database import get_db
 from .habit import Habit
 from .note import DailyNote
+from .todo import Todo
 from .birthday import Birthday
 from .watchlist import Watchlist
 
@@ -27,10 +28,75 @@ class DataExporter:
             "habits": DataExporter._export_habits(user_id),
             "habit_completions": DataExporter._export_habit_completions(user_id),
             "daily_notes": DataExporter._export_notes(user_id),
+            "todos": DataExporter._export_todos(user_id),
             "birthdays": DataExporter._export_birthdays(user_id),
             "watchlist": DataExporter._export_watchlist(user_id)
         }
         return export_data
+    
+    @staticmethod
+    def export_modules(user_id: int, username: str, modules: List[str]) -> Dict[str, Any]:
+        """Export selected modules only"""
+        export_data = {
+            "export_info": {
+                "version": "1.0",
+                "timestamp": datetime.now().isoformat(),
+                "username": username,
+                "app": "HabitStack",
+                "modules": modules
+            }
+        }
+        
+        # Available modules and their export methods
+        module_exporters = {
+            'habits': DataExporter._export_habits,
+            'habit_completions': DataExporter._export_habit_completions,
+            'daily_notes': DataExporter._export_notes,
+            'todos': DataExporter._export_todos,
+            'birthdays': DataExporter._export_birthdays,
+            'watchlist': DataExporter._export_watchlist
+        }
+        
+        # Export only selected modules
+        for module in modules:
+            if module in module_exporters:
+                export_data[module] = module_exporters[module](user_id)
+            else:
+                export_data[module] = []  # Empty for unknown modules
+        
+        return export_data
+    
+    @staticmethod
+    def get_module_counts(user_id: int) -> Dict[str, int]:
+        """Get count of items in each module for user"""
+        counts = {}
+        
+        with get_db() as conn:
+            # Habits
+            result = conn.execute("SELECT COUNT(*) as count FROM habits WHERE user_id = ?", (user_id,)).fetchone()
+            counts['habits'] = result['count'] if result else 0
+            
+            # Habit completions
+            result = conn.execute("SELECT COUNT(*) as count FROM habit_completions WHERE user_id = ?", (user_id,)).fetchone()
+            counts['habit_completions'] = result['count'] if result else 0
+            
+            # Daily notes
+            result = conn.execute("SELECT COUNT(*) as count FROM daily_notes WHERE user_id = ?", (user_id,)).fetchone()
+            counts['daily_notes'] = result['count'] if result else 0
+            
+            # Todos
+            result = conn.execute("SELECT COUNT(*) as count FROM todos WHERE user_id = ? AND deleted_at IS NULL", (user_id,)).fetchone()
+            counts['todos'] = result['count'] if result else 0
+            
+            # Birthdays
+            result = conn.execute("SELECT COUNT(*) as count FROM birthdays WHERE user_id = ?", (user_id,)).fetchone()
+            counts['birthdays'] = result['count'] if result else 0
+            
+            # Watchlist
+            result = conn.execute("SELECT COUNT(*) as count FROM watchlist WHERE user_id = ?", (user_id,)).fetchone()
+            counts['watchlist'] = result['count'] if result else 0
+        
+        return counts
     
     @staticmethod
     def _export_habits(user_id: int) -> List[Dict]:
@@ -71,6 +137,20 @@ class DataExporter:
             """, (user_id,)).fetchall()
             
             return [dict(note) for note in notes]
+    
+    @staticmethod
+    def _export_todos(user_id: int) -> List[Dict]:
+        """Export todos"""
+        with get_db() as conn:
+            todos = conn.execute("""
+                SELECT title, description, priority, due_date, category, 
+                       completed, completed_at, created_at, updated_at
+                FROM todos 
+                WHERE user_id = ? AND deleted_at IS NULL
+                ORDER BY created_at
+            """, (user_id,)).fetchall()
+            
+            return [dict(todo) for todo in todos]
     
     @staticmethod
     def _export_birthdays(user_id: int) -> List[Dict]:
@@ -131,6 +211,9 @@ class DataImporter:
             notes_result = DataImporter._import_notes(user_id, data.get('daily_notes', []))
             results.append(f"Notes: {notes_result}")
             
+            todos_result = DataImporter._import_todos(user_id, data.get('todos', []))
+            results.append(f"Todos: {todos_result}")
+            
             birthdays_result = DataImporter._import_birthdays(user_id, data.get('birthdays', []))
             results.append(f"Birthdays: {birthdays_result}")
             
@@ -146,17 +229,147 @@ class DataImporter:
             return {"success": False, "error": str(e)}
     
     @staticmethod
+    def import_modules(user_id: int, data: Dict[str, Any], modules: List[str], strategy: str = 'replace') -> Dict[str, Any]:
+        """Import selected modules with different strategies"""
+        try:
+            # Validate data structure
+            validation_result = DataImporter._validate_import_data(data)
+            if not validation_result['valid']:
+                return {"success": False, "error": validation_result['error']}
+            
+            # Available modules and their import methods
+            module_importers = {
+                'habits': DataImporter._import_habits,
+                'habit_completions': DataImporter._import_habit_completions,
+                'daily_notes': DataImporter._import_notes,
+                'todos': DataImporter._import_todos,
+                'birthdays': DataImporter._import_birthdays,
+                'watchlist': DataImporter._import_watchlist
+            }
+            
+            results = []
+            
+            # Clear existing data for selected modules if using replace strategy
+            if strategy == 'replace':
+                DataImporter._clear_selected_modules(user_id, modules)
+            
+            # Import selected modules
+            for module in modules:
+                if module in module_importers and module in data:
+                    try:
+                        # Special handling for habits (needed first for completions)
+                        if module == 'habits':
+                            result = DataImporter._import_habits(user_id, data.get('habits', []))
+                        elif module == 'habit_completions':
+                            result = DataImporter._import_habit_completions(user_id, data.get('habit_completions', []))
+                        else:
+                            result = module_importers[module](user_id, data.get(module, []))
+                        
+                        results.append(f"{module.replace('_', ' ').title()}: {result}")
+                    except Exception as e:
+                        results.append(f"{module.replace('_', ' ').title()}: Error - {str(e)}")
+                else:
+                    results.append(f"{module.replace('_', ' ').title()}: Not found in data")
+            
+            return {
+                "success": True,
+                "message": " | ".join(results)
+            }
+            
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+    
+    @staticmethod
+    def _clear_selected_modules(user_id: int, modules: List[str]):
+        """Clear data for selected modules only"""
+        with get_db() as conn:
+            # Delete in order to respect foreign key constraints
+            if 'habit_completions' in modules:
+                conn.execute("DELETE FROM habit_completions WHERE user_id = ?", (user_id,))
+            if 'habits' in modules:
+                conn.execute("DELETE FROM habits WHERE user_id = ?", (user_id,))
+            if 'daily_notes' in modules:
+                conn.execute("DELETE FROM daily_notes WHERE user_id = ?", (user_id,))
+            if 'todos' in modules:
+                conn.execute("DELETE FROM todos WHERE user_id = ?", (user_id,))
+            if 'birthdays' in modules:
+                conn.execute("DELETE FROM birthdays WHERE user_id = ?", (user_id,))
+            if 'watchlist' in modules:
+                conn.execute("DELETE FROM watchlist WHERE user_id = ?", (user_id,))
+            conn.commit()
+    
+    @staticmethod
+    def analyze_import_data(data: Dict[str, Any]) -> Dict[str, Any]:
+        """Analyze import data and return module information"""
+        analysis = {
+            "valid": False,
+            "modules": {},
+            "export_info": {}
+        }
+        
+        try:
+            # Basic validation
+            validation_result = DataImporter._validate_import_data(data)
+            if not validation_result['valid']:
+                analysis["error"] = validation_result['error']
+                return analysis
+            
+            analysis["valid"] = True
+            analysis["export_info"] = data.get('export_info', {})
+            
+            # Analyze each module
+            module_info = {
+                'habits': {'name': 'Habits', 'icon': '✓'},
+                'habit_completions': {'name': 'Habit Completions', 'icon': '📈'},
+                'daily_notes': {'name': 'Daily Notes', 'icon': '📝'},
+                'todos': {'name': 'Todo List', 'icon': '✅'},
+                'birthdays': {'name': 'Birthday Reminders', 'icon': '🎂'},
+                'watchlist': {'name': 'Movies & Series', 'icon': '🎬'}
+            }
+            
+            for module, info in module_info.items():
+                module_data = data.get(module, [])
+                analysis["modules"][module] = {
+                    "name": info['name'],
+                    "icon": info['icon'],
+                    "count": len(module_data) if isinstance(module_data, list) else 0,
+                    "available": module in data and len(module_data) > 0
+                }
+            
+            return analysis
+            
+        except Exception as e:
+            analysis["error"] = str(e)
+            return analysis
+    
+    @staticmethod
     def _validate_import_data(data: Dict[str, Any]) -> Dict[str, Any]:
         """Validate import data structure"""
-        required_keys = ['export_info', 'habits', 'daily_notes', 'birthdays', 'watchlist']
-        
-        for key in required_keys:
-            if key not in data:
-                return {"valid": False, "error": f"Missing required section: {key}"}
+        # Must have export_info
+        if 'export_info' not in data:
+            return {"valid": False, "error": "Missing export_info section"}
         
         export_info = data.get('export_info', {})
         if not export_info.get('version'):
             return {"valid": False, "error": "Missing export version information"}
+        
+        # Check if this is a modular export (has modules field)
+        if 'modules' in export_info:
+            # Modular export - only check for modules listed
+            expected_modules = export_info['modules']
+            for module in expected_modules:
+                if module not in data:
+                    return {"valid": False, "error": f"Missing expected module: {module}"}
+        else:
+            # Legacy full export - check for core required keys
+            required_keys = ['habits', 'daily_notes', 'birthdays', 'watchlist']
+            for key in required_keys:
+                if key not in data:
+                    return {"valid": False, "error": f"Missing required section: {key}"}
+        
+        # Ensure todos section exists (for backwards compatibility)
+        if 'todos' not in data:
+            data['todos'] = []
         
         return {"valid": True}
     
@@ -168,6 +381,7 @@ class DataImporter:
             conn.execute("DELETE FROM habit_completions WHERE user_id = ?", (user_id,))
             conn.execute("DELETE FROM habits WHERE user_id = ?", (user_id,))
             conn.execute("DELETE FROM daily_notes WHERE user_id = ?", (user_id,))
+            conn.execute("DELETE FROM todos WHERE user_id = ?", (user_id,))
             conn.execute("DELETE FROM birthdays WHERE user_id = ?", (user_id,))
             conn.execute("DELETE FROM watchlist WHERE user_id = ?", (user_id,))
             conn.commit()
@@ -256,6 +470,36 @@ class DataImporter:
                         INSERT INTO daily_notes (user_id, note_date, content)
                         VALUES (?, ?, ?)
                     """, (user_id, note_date, content))
+                    count += 1
+            
+            conn.commit()
+        
+        return f"{count} imported"
+    
+    @staticmethod
+    def _import_todos(user_id: int, todos_data: List[Dict]) -> str:
+        """Import todos"""
+        if not todos_data:
+            return "0 imported"
+        
+        count = 0
+        with get_db() as conn:
+            for todo in todos_data:
+                title = todo.get('title')
+                description = todo.get('description')
+                priority = todo.get('priority', 'medium')
+                due_date = todo.get('due_date')
+                category = todo.get('category')
+                completed = todo.get('completed', False)
+                completed_at = todo.get('completed_at')
+                
+                if title:
+                    conn.execute("""
+                        INSERT INTO todos (user_id, title, description, priority, due_date, 
+                                         category, completed, completed_at)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    """, (user_id, title, description, priority, due_date, 
+                          category, completed, completed_at))
                     count += 1
             
             conn.commit()
