@@ -111,6 +111,15 @@
                                         </span>
                                     </label>
                                     
+                                    <!-- Reading List -->
+                                    <label class="flex items-center p-2.5 sm:p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                                        <input type="checkbox" name="modules" value="reading" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded flex-shrink-0">
+                                        <span class="ml-2.5 sm:ml-3 flex-1 min-w-0">
+                                            <span class="text-sm font-medium text-gray-900 block truncate">📚 Reading List</span>
+                                            <span class="block text-xs text-gray-500">{{ module_counts.reading }} books</span>
+                                        </span>
+                                    </label>
+                                    
                                     <!-- Watchlist -->
                                     <label class="flex items-center p-2.5 sm:p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
                                         <input type="checkbox" name="modules" value="watchlist" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded flex-shrink-0">
@@ -219,6 +228,10 @@
                                         <label class="flex items-center">
                                             <input type="checkbox" name="import_modules" value="todos" checked class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
                                             <span class="ml-2 text-sm text-gray-700">✅ Todos</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" name="import_modules" value="reading" checked class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
+                                            <span class="ml-2 text-sm text-gray-700">📚 Reading</span>
                                         </label>
                                         <label class="flex items-center">
                                             <input type="checkbox" name="import_modules" value="birthdays" checked class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">

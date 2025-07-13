@@ -6,6 +6,7 @@ This package provides all the data models:
 - Habit: Habit tracking and completion management
 - DailyNote: Daily journaling functionality
 - Todo: Task management and tracking
+- Reading: Book and reading list management
 - Birthday: Birthday reminder system
 - Watchlist: Movies and series tracking
 """
@@ -14,8 +15,9 @@ from .user import User
 from .habit import Habit
 from .note import DailyNote
 from .todo import Todo
+from .reading import Reading
 from .birthday import Birthday
 from .watchlist import Watchlist
 from .data_manager import DataExporter, DataImporter
 
-__all__ = ['User', 'Habit', 'DailyNote', 'Todo', 'Birthday', 'Watchlist', 'DataExporter', 'DataImporter']
+__all__ = ['User', 'Habit', 'DailyNote', 'Todo', 'Reading', 'Birthday', 'Watchlist', 'DataExporter', 'DataImporter']

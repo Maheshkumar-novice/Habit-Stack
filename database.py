@@ -229,6 +229,27 @@ def init_db():
             );
         """)
         
+        # Create reading_list table
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS reading_list (
+                id INTEGER PRIMARY KEY,
+                user_id INTEGER NOT NULL,
+                title TEXT NOT NULL,
+                author TEXT NOT NULL,
+                total_pages INTEGER,
+                current_page INTEGER DEFAULT 0,
+                status TEXT DEFAULT 'want_to_read',
+                rating INTEGER,
+                notes TEXT,
+                date_added TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                date_completed TIMESTAMP,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                deleted_at TIMESTAMP NULL,
+                FOREIGN KEY (user_id) REFERENCES users (id)
+            );
+        """)
+        
         # Add deleted_at column to existing users table if it doesn't exist
         try:
             conn.execute("ALTER TABLE users ADD COLUMN deleted_at TIMESTAMP NULL")
@@ -254,6 +275,10 @@ def init_db():
             CREATE INDEX IF NOT EXISTS idx_todos_priority ON todos(priority);
             CREATE INDEX IF NOT EXISTS idx_todos_completed ON todos(completed);
             CREATE INDEX IF NOT EXISTS idx_todos_deleted ON todos(deleted_at);
+            CREATE INDEX IF NOT EXISTS idx_reading_user_id ON reading_list(user_id);
+            CREATE INDEX IF NOT EXISTS idx_reading_status ON reading_list(status);
+            CREATE INDEX IF NOT EXISTS idx_reading_deleted ON reading_list(deleted_at);
+            CREATE INDEX IF NOT EXISTS idx_reading_user_status ON reading_list(user_id, status, deleted_at);
         """)
         
         conn.commit()

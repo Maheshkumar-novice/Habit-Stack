@@ -8,6 +8,7 @@ from database import get_db
 from .habit import Habit
 from .note import DailyNote
 from .todo import Todo
+from .reading import Reading
 from .birthday import Birthday
 from .watchlist import Watchlist
 
@@ -29,6 +30,7 @@ class DataExporter:
             "habit_completions": DataExporter._export_habit_completions(user_id),
             "daily_notes": DataExporter._export_notes(user_id),
             "todos": DataExporter._export_todos(user_id),
+            "reading": DataExporter._export_reading(user_id),
             "birthdays": DataExporter._export_birthdays(user_id),
             "watchlist": DataExporter._export_watchlist(user_id)
         }
@@ -53,6 +55,7 @@ class DataExporter:
             'habit_completions': DataExporter._export_habit_completions,
             'daily_notes': DataExporter._export_notes,
             'todos': DataExporter._export_todos,
+            'reading': DataExporter._export_reading,
             'birthdays': DataExporter._export_birthdays,
             'watchlist': DataExporter._export_watchlist
         }
@@ -87,6 +90,10 @@ class DataExporter:
             # Todos
             result = conn.execute("SELECT COUNT(*) as count FROM todos WHERE user_id = ? AND deleted_at IS NULL", (user_id,)).fetchone()
             counts['todos'] = result['count'] if result else 0
+            
+            # Reading
+            result = conn.execute("SELECT COUNT(*) as count FROM reading_list WHERE user_id = ? AND deleted_at IS NULL", (user_id,)).fetchone()
+            counts['reading'] = result['count'] if result else 0
             
             # Birthdays
             result = conn.execute("SELECT COUNT(*) as count FROM birthdays WHERE user_id = ?", (user_id,)).fetchone()
@@ -153,6 +160,20 @@ class DataExporter:
             return [dict(todo) for todo in todos]
     
     @staticmethod
+    def _export_reading(user_id: int) -> List[Dict]:
+        """Export reading list"""
+        with get_db() as conn:
+            books = conn.execute("""
+                SELECT title, author, total_pages, current_page, status, rating, notes,
+                       date_added, date_completed, created_at, updated_at
+                FROM reading_list 
+                WHERE user_id = ? AND deleted_at IS NULL
+                ORDER BY created_at
+            """, (user_id,)).fetchall()
+            
+            return [dict(book) for book in books]
+    
+    @staticmethod
     def _export_birthdays(user_id: int) -> List[Dict]:
         """Export birthdays"""
         with get_db() as conn:
@@ -214,6 +235,9 @@ class DataImporter:
             todos_result = DataImporter._import_todos(user_id, data.get('todos', []))
             results.append(f"Todos: {todos_result}")
             
+            reading_result = DataImporter._import_reading(user_id, data.get('reading', []))
+            results.append(f"Reading: {reading_result}")
+            
             birthdays_result = DataImporter._import_birthdays(user_id, data.get('birthdays', []))
             results.append(f"Birthdays: {birthdays_result}")
             
@@ -243,6 +267,7 @@ class DataImporter:
                 'habit_completions': DataImporter._import_habit_completions,
                 'daily_notes': DataImporter._import_notes,
                 'todos': DataImporter._import_todos,
+                'reading': DataImporter._import_reading,
                 'birthdays': DataImporter._import_birthdays,
                 'watchlist': DataImporter._import_watchlist
             }
@@ -292,6 +317,8 @@ class DataImporter:
                 conn.execute("DELETE FROM daily_notes WHERE user_id = ?", (user_id,))
             if 'todos' in modules:
                 conn.execute("DELETE FROM todos WHERE user_id = ?", (user_id,))
+            if 'reading' in modules:
+                conn.execute("DELETE FROM reading_list WHERE user_id = ?", (user_id,))
             if 'birthdays' in modules:
                 conn.execute("DELETE FROM birthdays WHERE user_id = ?", (user_id,))
             if 'watchlist' in modules:
@@ -323,6 +350,7 @@ class DataImporter:
                 'habit_completions': {'name': 'Habit Completions', 'icon': '📈'},
                 'daily_notes': {'name': 'Daily Notes', 'icon': '📝'},
                 'todos': {'name': 'Todo List', 'icon': '✅'},
+                'reading': {'name': 'Reading List', 'icon': '📚'},
                 'birthdays': {'name': 'Birthday Reminders', 'icon': '🎂'},
                 'watchlist': {'name': 'Movies & Series', 'icon': '🎬'}
             }
@@ -367,9 +395,11 @@ class DataImporter:
                 if key not in data:
                     return {"valid": False, "error": f"Missing required section: {key}"}
         
-        # Ensure todos section exists (for backwards compatibility)
+        # Ensure todos and reading sections exist (for backwards compatibility)
         if 'todos' not in data:
             data['todos'] = []
+        if 'reading' not in data:
+            data['reading'] = []
         
         return {"valid": True}
     
@@ -382,6 +412,7 @@ class DataImporter:
             conn.execute("DELETE FROM habits WHERE user_id = ?", (user_id,))
             conn.execute("DELETE FROM daily_notes WHERE user_id = ?", (user_id,))
             conn.execute("DELETE FROM todos WHERE user_id = ?", (user_id,))
+            conn.execute("DELETE FROM reading_list WHERE user_id = ?", (user_id,))
             conn.execute("DELETE FROM birthdays WHERE user_id = ?", (user_id,))
             conn.execute("DELETE FROM watchlist WHERE user_id = ?", (user_id,))
             conn.commit()
@@ -500,6 +531,35 @@ class DataImporter:
                         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                     """, (user_id, title, description, priority, due_date, 
                           category, completed, completed_at))
+                    count += 1
+            
+            conn.commit()
+        
+        return f"{count} imported"
+    
+    @staticmethod
+    def _import_reading(user_id: int, reading_data: List[Dict]) -> str:
+        """Import reading list books"""
+        if not reading_data:
+            return "0 imported"
+        
+        count = 0
+        with get_db() as conn:
+            for book in reading_data:
+                title = book.get('title')
+                author = book.get('author')
+                
+                if title and author:
+                    conn.execute("""
+                        INSERT INTO reading_list (user_id, title, author, total_pages, current_page, 
+                                                 status, rating, notes, date_added, date_completed)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """, (
+                        user_id, title, author,
+                        book.get('total_pages'), book.get('current_page', 0),
+                        book.get('status', 'want_to_read'), book.get('rating'),
+                        book.get('notes'), book.get('date_added'), book.get('date_completed')
+                    ))
                     count += 1
             
             conn.commit()
