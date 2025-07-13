@@ -3,8 +3,7 @@ Habit management routes for HabitStack
 """
 
 from flask import Blueprint, render_template, request, redirect, url_for
-from datetime import date, timedelta
-from models import Habit, DailyNote
+from models import Habit
 from utils import get_current_user, require_auth
 
 # Create habits blueprint
