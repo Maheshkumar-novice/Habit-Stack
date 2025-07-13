@@ -177,6 +177,17 @@ def init_db():
                 FOREIGN KEY (user_id) REFERENCES users (id),
                 UNIQUE(user_id, note_date)
             );
+            
+            CREATE TABLE IF NOT EXISTS birthdays (
+                id INTEGER PRIMARY KEY,
+                user_id INTEGER NOT NULL,
+                name TEXT NOT NULL,
+                birth_date DATE NOT NULL,
+                relationship_type TEXT,
+                notes TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users (id)
+            );
         """)
         
         # Create indexes for better performance
@@ -185,6 +196,8 @@ def init_db():
             CREATE INDEX IF NOT EXISTS idx_completions_habit_date ON habit_completions(habit_id, completion_date);
             CREATE INDEX IF NOT EXISTS idx_completions_user_date ON habit_completions(user_id, completion_date);
             CREATE INDEX IF NOT EXISTS idx_notes_user_date ON daily_notes(user_id, note_date);
+            CREATE INDEX IF NOT EXISTS idx_birthdays_user_id ON birthdays(user_id);
+            CREATE INDEX IF NOT EXISTS idx_birthdays_birth_date ON birthdays(birth_date);
         """)
         
         conn.commit()

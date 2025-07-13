@@ -12,6 +12,7 @@ from utils import get_current_user
 from auth import auth_bp
 from habits import habits_bp
 from notes import notes_bp
+from birthdays import birthdays_bp
 
 # Flask app setup
 app = Flask(__name__, static_url_path='/habitstack/static')
@@ -21,6 +22,7 @@ app.secret_key = 'your-secret-key-change-in-production'  # Change this in produc
 app.register_blueprint(auth_bp)
 app.register_blueprint(habits_bp)
 app.register_blueprint(notes_bp)
+app.register_blueprint(birthdays_bp)
 
 # Create main blueprint for dashboard and landing
 main_bp = Blueprint('main', __name__)
