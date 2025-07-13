@@ -14,5 +14,6 @@ from .habit import Habit
 from .note import DailyNote
 from .birthday import Birthday
 from .watchlist import Watchlist
+from .data_manager import DataExporter, DataImporter
 
-__all__ = ['User', 'Habit', 'DailyNote', 'Birthday', 'Watchlist']
+__all__ = ['User', 'Habit', 'DailyNote', 'Birthday', 'Watchlist', 'DataExporter', 'DataImporter']

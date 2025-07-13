@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% set current_page = 'settings' %}
+{% set page_title = 'Settings' %}
+{% set back_link = {'url': '/habitstack/', 'text': '← Back to Dashboard'} %}
+{% include 'navbar.html' %}
+
+<!-- Main Content -->
+<main class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <h2 class="text-2xl font-bold text-gray-900">Settings</h2>
+        <p class="mt-1 text-sm text-gray-600">Manage your data and preferences</p>
+    </div>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+            <div class="mb-6 rounded-md p-4 {{ 'bg-red-50 border border-red-200 text-red-700' if category == 'error' else 'bg-green-50 border border-green-200 text-green-700' }}">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        {% if category == 'error' %}
+                        <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                        </svg>
+                        {% else %}
+                        <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                        </svg>
+                        {% endif %}
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium">{{ message }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- Data Management Section -->
+    <div class="bg-white shadow-sm rounded-lg border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">Data Management</h3>
+            <p class="mt-1 text-sm text-gray-600">Export and import your HabitStack data</p>
+        </div>
+        
+        <div class="p-6 space-y-8">
+            <!-- Export Section -->
+            <div>
+                <div class="flex items-start space-x-4">
+                    <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100">
+                        <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="text-base font-medium text-gray-900">Export Data</h4>
+                        <p class="mt-1 text-sm text-gray-600">
+                            Download your complete HabitStack data as a JSON file. Includes all habits, completions, notes, birthdays, and watchlist items.
+                        </p>
+                        <div class="mt-4">
+                            <form method="post" action="/habitstack/export">
+                                <button type="submit" 
+                                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M7 13h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v4a2 2 0 002 2z"></path>
+                                    </svg>
+                                    Export All Data
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Divider -->
+            <div class="border-t border-gray-200"></div>
+
+            <!-- Import Section -->
+            <div>
+                <div class="flex items-start space-x-4">
+                    <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-orange-100">
+                        <svg class="h-6 w-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="text-base font-medium text-gray-900">Import Data</h4>
+                        <p class="mt-1 text-sm text-gray-600">
+                            Upload a HabitStack JSON backup file to restore your data. This will replace all your current data.
+                        </p>
+                        
+                        <!-- Warning Box -->
+                        <div class="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-md">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <svg class="h-5 w-5 text-amber-400" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                                <div class="ml-3">
+                                    <h5 class="text-sm font-medium text-amber-800">Warning: Data Replacement</h5>
+                                    <p class="mt-1 text-sm text-amber-700">
+                                        Importing will permanently replace all your existing habits, notes, birthdays, and watchlist items. 
+                                        <strong>Export your current data first</strong> if you want to keep a backup.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <form method="post" action="/habitstack/import" enctype="multipart/form-data" class="space-y-4">
+                                <div>
+                                    <label for="import_file" class="block text-sm font-medium text-gray-700">
+                                        Select JSON backup file
+                                    </label>
+                                    <div class="mt-1">
+                                        <input type="file" 
+                                               name="import_file" 
+                                               id="import_file" 
+                                               accept=".json,application/json"
+                                               required
+                                               class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center space-x-3">
+                                    <input type="checkbox" 
+                                           id="confirm_replace" 
+                                           name="confirm_replace" 
+                                           required
+                                           class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
+                                    <label for="confirm_replace" class="text-sm text-gray-700">
+                                        I understand this will replace all my existing data
+                                    </label>
+                                </div>
+
+                                <button type="submit" 
+                                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                    </svg>
+                                    Import Data
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Additional Settings Sections (Future) -->
+    <div class="mt-8 bg-white shadow-sm rounded-lg border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">Account</h3>
+            <p class="mt-1 text-sm text-gray-600">Manage your account preferences</p>
+        </div>
+        
+        <div class="p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h4 class="text-base font-medium text-gray-900">Username</h4>
+                    <p class="text-sm text-gray-600">{{ user.username }}</p>
+                </div>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    Active
+                </span>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
