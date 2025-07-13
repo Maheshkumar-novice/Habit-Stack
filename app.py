@@ -2,6 +2,7 @@
 HabitStack - Flask backend with Tailwind CSS frontend
 """
 
+import os
 from flask import Flask, render_template, redirect, url_for, Blueprint
 from datetime import datetime
 from database import init_db
@@ -16,7 +17,7 @@ from birthdays import birthdays_bp
 
 # Flask app setup
 app = Flask(__name__, static_url_path='/habitstack/static')
-app.secret_key = 'your-secret-key-change-in-production'  # Change this in production!
+app.secret_key = os.environ.get('SECRET_KEY', 'dev-key-change-in-production')
 
 # Register blueprints
 app.register_blueprint(auth_bp)
