@@ -47,16 +47,16 @@
             <p class="mt-1 text-sm text-gray-600">Export and import your HabitStack data</p>
         </div>
         
-        <div class="p-6 space-y-8">
+        <div class="p-4 sm:p-6 space-y-6 sm:space-y-8">
             <!-- Module Selection Export Section -->
             <div>
-                <div class="flex items-start space-x-4">
-                    <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100">
-                        <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="flex items-start space-x-3 sm:space-x-4">
+                    <div class="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-lg bg-blue-100 flex-shrink-0">
+                        <svg class="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                         </svg>
                     </div>
-                    <div class="flex-1">
+                    <div class="flex-1 min-w-0">
                         <h4 class="text-base font-medium text-gray-900">Export Data</h4>
                         <p class="mt-1 text-sm text-gray-600">
                             Choose which modules to export. Select all for a complete backup, or pick specific modules for targeted exports.
@@ -65,71 +65,71 @@
                         <div class="mt-4">
                             <form method="post" action="/habitstack/export-modules" class="space-y-4">
                                 <!-- Module Selection Grid -->
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
                                     <!-- Habits -->
-                                    <label class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
-                                        <input type="checkbox" name="modules" value="habits" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                                        <span class="ml-3 flex-1">
-                                            <span class="text-sm font-medium text-gray-900">✓ Habits</span>
+                                    <label class="flex items-center p-2.5 sm:p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                                        <input type="checkbox" name="modules" value="habits" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded flex-shrink-0">
+                                        <span class="ml-2.5 sm:ml-3 flex-1 min-w-0">
+                                            <span class="text-sm font-medium text-gray-900 block truncate">✓ Habits</span>
                                             <span class="block text-xs text-gray-500">{{ module_counts.habits }} items</span>
                                         </span>
                                     </label>
                                     
                                     <!-- Habit Completions -->
-                                    <label class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
-                                        <input type="checkbox" name="modules" value="habit_completions" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                                        <span class="ml-3 flex-1">
-                                            <span class="text-sm font-medium text-gray-900">📈 Habit History</span>
+                                    <label class="flex items-center p-2.5 sm:p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                                        <input type="checkbox" name="modules" value="habit_completions" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded flex-shrink-0">
+                                        <span class="ml-2.5 sm:ml-3 flex-1 min-w-0">
+                                            <span class="text-sm font-medium text-gray-900 block truncate">📈 Habit History</span>
                                             <span class="block text-xs text-gray-500">{{ module_counts.habit_completions }} completions</span>
                                         </span>
                                     </label>
                                     
                                     <!-- Daily Notes -->
-                                    <label class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
-                                        <input type="checkbox" name="modules" value="daily_notes" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                                        <span class="ml-3 flex-1">
-                                            <span class="text-sm font-medium text-gray-900">📝 Daily Notes</span>
+                                    <label class="flex items-center p-2.5 sm:p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                                        <input type="checkbox" name="modules" value="daily_notes" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded flex-shrink-0">
+                                        <span class="ml-2.5 sm:ml-3 flex-1 min-w-0">
+                                            <span class="text-sm font-medium text-gray-900 block truncate">📝 Daily Notes</span>
                                             <span class="block text-xs text-gray-500">{{ module_counts.daily_notes }} notes</span>
                                         </span>
                                     </label>
                                     
                                     <!-- Todos -->
-                                    <label class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
-                                        <input type="checkbox" name="modules" value="todos" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                                        <span class="ml-3 flex-1">
-                                            <span class="text-sm font-medium text-gray-900">✅ Todo List</span>
+                                    <label class="flex items-center p-2.5 sm:p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                                        <input type="checkbox" name="modules" value="todos" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded flex-shrink-0">
+                                        <span class="ml-2.5 sm:ml-3 flex-1 min-w-0">
+                                            <span class="text-sm font-medium text-gray-900 block truncate">✅ Todo List</span>
                                             <span class="block text-xs text-gray-500">{{ module_counts.todos }} todos</span>
                                         </span>
                                     </label>
                                     
                                     <!-- Birthdays -->
-                                    <label class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
-                                        <input type="checkbox" name="modules" value="birthdays" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                                        <span class="ml-3 flex-1">
-                                            <span class="text-sm font-medium text-gray-900">🎂 Birthdays</span>
+                                    <label class="flex items-center p-2.5 sm:p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                                        <input type="checkbox" name="modules" value="birthdays" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded flex-shrink-0">
+                                        <span class="ml-2.5 sm:ml-3 flex-1 min-w-0">
+                                            <span class="text-sm font-medium text-gray-900 block truncate">🎂 Birthdays</span>
                                             <span class="block text-xs text-gray-500">{{ module_counts.birthdays }} birthdays</span>
                                         </span>
                                     </label>
                                     
                                     <!-- Watchlist -->
-                                    <label class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
-                                        <input type="checkbox" name="modules" value="watchlist" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                                        <span class="ml-3 flex-1">
-                                            <span class="text-sm font-medium text-gray-900">🎬 Watchlist</span>
+                                    <label class="flex items-center p-2.5 sm:p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                                        <input type="checkbox" name="modules" value="watchlist" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded flex-shrink-0">
+                                        <span class="ml-2.5 sm:ml-3 flex-1 min-w-0">
+                                            <span class="text-sm font-medium text-gray-900 block truncate">🎬 Watchlist</span>
                                             <span class="block text-xs text-gray-500">{{ module_counts.watchlist }} items</span>
                                         </span>
                                     </label>
                                 </div>
                                 
-                                <div class="flex items-center justify-between">
-                                    <div class="flex space-x-2">
-                                        <button type="button" onclick="selectAllModules()" class="text-sm text-blue-600 hover:text-blue-800">Select All</button>
+                                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
+                                    <div class="flex space-x-2 justify-center sm:justify-start">
+                                        <button type="button" onclick="selectAllModules()" class="text-sm text-blue-600 hover:text-blue-800 transition-colors">Select All</button>
                                         <span class="text-gray-300">|</span>
-                                        <button type="button" onclick="selectNoneModules()" class="text-sm text-blue-600 hover:text-blue-800">Select None</button>
+                                        <button type="button" onclick="selectNoneModules()" class="text-sm text-blue-600 hover:text-blue-800 transition-colors">Select None</button>
                                     </div>
                                     <button type="submit" 
-                                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
-                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors w-full sm:w-auto">
+                                        <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M7 13h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v4a2 2 0 002 2z"></path>
                                         </svg>
                                         Export Selected
@@ -157,13 +157,13 @@
 
             <!-- Module Selection Import Section -->
             <div>
-                <div class="flex items-start space-x-4">
-                    <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-orange-100">
-                        <svg class="h-6 w-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="flex items-start space-x-3 sm:space-x-4">
+                    <div class="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-lg bg-orange-100 flex-shrink-0">
+                        <svg class="h-5 w-5 sm:h-6 sm:w-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
                         </svg>
                     </div>
-                    <div class="flex-1">
+                    <div class="flex-1 min-w-0">
                         <h4 class="text-base font-medium text-gray-900">Import Data</h4>
                         <p class="mt-1 text-sm text-gray-600">
                             Upload a JSON backup file and choose which modules to import. You can replace existing data or analyze the file first.
@@ -203,7 +203,7 @@
                                 <!-- Module Selection -->
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700">Modules to Import</label>
-                                    <div class="mt-2 grid grid-cols-2 gap-2">
+                                    <div class="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
                                         <label class="flex items-center">
                                             <input type="checkbox" name="import_modules" value="habits" checked class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
                                             <span class="ml-2 text-sm text-gray-700">✓ Habits</span>
@@ -248,18 +248,18 @@
                                     </div>
                                 </div>
 
-                                <div class="flex items-center justify-between">
+                                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
                                     <button type="button" onclick="analyzeImportFile()" 
-                                            class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
-                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            class="inline-flex items-center justify-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 w-full sm:w-auto">
+                                        <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                         </svg>
                                         Analyze File
                                     </button>
                                     
                                     <button type="submit" 
-                                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors">
-                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors w-full sm:w-auto">
+                                        <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
                                         </svg>
                                         Import Selected
@@ -271,14 +271,16 @@
                         <!-- Legacy Import Option -->
                         <div class="mt-4 pt-4 border-t border-gray-100">
                             <p class="text-xs text-gray-500 mb-2">Legacy option:</p>
-                            <form method="post" action="/habitstack/import" enctype="multipart/form-data" class="inline">
-                                <div class="flex items-center space-x-2">
-                                    <input type="file" name="import_file" accept=".json" required class="text-xs">
-                                    <input type="checkbox" name="confirm_replace" required class="h-3 w-3">
-                                    <span class="text-xs text-gray-500">Replace all</span>
-                                    <button type="submit" class="inline-flex items-center px-2 py-1 text-xs font-medium rounded border border-gray-300 text-gray-700 bg-white hover:bg-gray-50">
-                                        Import All (Old)
-                                    </button>
+                            <form method="post" action="/habitstack/import" enctype="multipart/form-data" class="space-y-2 sm:space-y-0">
+                                <div class="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
+                                    <input type="file" name="import_file" accept=".json" required class="text-xs flex-1">
+                                    <div class="flex items-center space-x-2">
+                                        <input type="checkbox" name="confirm_replace" required class="h-3 w-3">
+                                        <span class="text-xs text-gray-500">Replace all</span>
+                                        <button type="submit" class="inline-flex items-center px-2 py-1 text-xs font-medium rounded border border-gray-300 text-gray-700 bg-white hover:bg-gray-50">
+                                            Import All (Old)
+                                        </button>
+                                    </div>
                                 </div>
                             </form>
                         </div>
@@ -340,19 +342,19 @@
 
     <!-- Account Settings Section -->
     <div class="mt-8 bg-white shadow-sm rounded-lg border border-gray-200">
-        <div class="px-6 py-4 border-b border-gray-200">
+        <div class="px-4 sm:px-6 py-4 border-b border-gray-200">
             <h3 class="text-lg font-medium text-gray-900">Account Settings</h3>
             <p class="mt-1 text-sm text-gray-600">Manage your account information and security</p>
         </div>
         
-        <div class="p-6 space-y-8">
+        <div class="p-4 sm:p-6 space-y-6 sm:space-y-8">
             <!-- Username Info -->
-            <div class="flex items-center justify-between">
-                <div>
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
+                <div class="min-w-0 flex-1">
                     <h4 class="text-base font-medium text-gray-900">Username</h4>
-                    <p class="text-sm text-gray-600">{{ user.username }}</p>
+                    <p class="text-sm text-gray-600 truncate">{{ user.username }}</p>
                 </div>
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 flex-shrink-0 self-start sm:self-center">
                     Active
                 </span>
             </div>
@@ -362,13 +364,13 @@
 
             <!-- Password Update Section -->
             <div>
-                <div class="flex items-start space-x-4">
-                    <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100">
-                        <svg class="h-6 w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="flex items-start space-x-3 sm:space-x-4">
+                    <div class="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-lg bg-purple-100 flex-shrink-0">
+                        <svg class="h-5 w-5 sm:h-6 sm:w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                         </svg>
                     </div>
-                    <div class="flex-1">
+                    <div class="flex-1 min-w-0">
                         <h4 class="text-base font-medium text-gray-900">Update Password</h4>
                         <p class="mt-1 text-sm text-gray-600">
                             Change your account password. Make sure to use a strong password with at least 8 characters.
@@ -385,7 +387,7 @@
                                                name="current_password" 
                                                id="current_password" 
                                                required
-                                               class="block w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm sm:leading-6">
+                                               class="block w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 text-sm leading-6">
                                     </div>
                                 </div>
 
@@ -399,7 +401,7 @@
                                                    name="new_password" 
                                                    id="new_password" 
                                                    required
-                                                   class="block w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm sm:leading-6">
+                                                   class="block w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 text-sm leading-6">
                                         </div>
                                     </div>
 
@@ -412,7 +414,7 @@
                                                    name="confirm_password" 
                                                    id="confirm_password" 
                                                    required
-                                                   class="block w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm sm:leading-6">
+                                                   class="block w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 text-sm leading-6">
                                         </div>
                                     </div>
                                 </div>
@@ -429,8 +431,8 @@
                                 </div>
 
                                 <button type="submit" 
-                                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors">
-                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors w-full sm:w-auto">
+                                    <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                                     </svg>
                                     Update Password
@@ -446,13 +448,13 @@
 
             <!-- Delete Account Section -->
             <div>
-                <div class="flex items-start space-x-4">
-                    <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-red-100">
-                        <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="flex items-start space-x-3 sm:space-x-4">
+                    <div class="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-lg bg-red-100 flex-shrink-0">
+                        <svg class="h-5 w-5 sm:h-6 sm:w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
                         </svg>
                     </div>
-                    <div class="flex-1">
+                    <div class="flex-1 min-w-0">
                         <h4 class="text-base font-medium text-gray-900">Delete Account</h4>
                         <p class="mt-1 text-sm text-gray-600">
                             Permanently delete your account and all associated data. This action cannot be undone.
@@ -487,7 +489,7 @@
                                                name="password" 
                                                id="password" 
                                                required
-                                               class="block w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-red-600 sm:text-sm sm:leading-6">
+                                               class="block w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-red-600 text-sm leading-6">
                                     </div>
                                 </div>
 
@@ -501,14 +503,14 @@
                                                id="confirm_delete" 
                                                required
                                                placeholder="Type DELETE here"
-                                               class="block w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-red-600 sm:text-sm sm:leading-6">
+                                               class="block w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-red-600 text-sm leading-6">
                                     </div>
                                     <p class="mt-1 text-xs text-gray-500">This must match exactly: DELETE</p>
                                 </div>
 
                                 <button type="submit" 
-                                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">
-                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors w-full sm:w-auto">
+                                    <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
                                     </svg>
                                     Delete My Account
