@@ -1,6 +1,6 @@
 # HabitStack
 
-Personal life organizer with habit tracking, daily notes, birthday reminders, watchlist, and data management.
+Personal life organizer with habit tracking, daily notes, todo list management, birthday reminders, watchlist, and comprehensive data management.
 
 ## Quick Start
 
@@ -18,12 +18,13 @@ uv run python app.py
 
 - Habit tracking with streaks and points
 - Daily notes and journaling
-- Birthday reminders
-- Movies/series watchlist
-- Data export/import
-- Account management
-- Progressive Web App (PWA)
-- Mobile-responsive design
+- Todo list management with smart organization
+- Birthday reminders with relationship tracking
+- Movies/series watchlist with progress tracking
+- Modular data export/import with file analysis
+- Comprehensive account management with password updates
+- Progressive Web App (PWA) for mobile installation
+- Fully mobile-responsive design optimized for all devices
 
 ## Technology
 
@@ -46,24 +47,26 @@ uv add <package>        # Add new dependency
 ```
 ├── app.py              # Main Flask application
 ├── database.py         # Database connection and tables
-├── models/             # Data models (user, habit, note, birthday, watchlist)
+├── models/             # Data models (user, habit, note, todo, birthday, watchlist, data_manager)
 ├── auth.py             # Authentication routes
 ├── habits.py           # Habit management
 ├── notes.py            # Daily notes
+├── todos.py            # Todo list management
 ├── birthdays.py        # Birthday reminders
 ├── watchlist.py        # Movies/series tracking
 ├── settings.py         # Account and data management
-└── templates/          # HTML templates
+└── templates/          # HTML templates with mobile optimization
 ```
 
 ## Routes
 
 All routes prefixed with `/habitstack/`:
 
-- `/` - Dashboard
+- `/` - Dashboard with habit tracking
 - `/login` `/signup` `/logout` - Authentication
-- `/habits` - Habit management
-- `/notes` - Daily journaling
-- `/birthdays` - Birthday reminders
-- `/watchlist` - Movies/series tracking
-- `/settings` - Account and data management
+- `/habits` - Habit management with streaks
+- `/notes` - Daily journaling with date navigation
+- `/todos` - Todo list with smart organization
+- `/birthdays` - Birthday reminders with relationship tracking
+- `/watchlist` - Movies/series tracking with progress
+- `/settings` - Account and modular data management

@@ -51,19 +51,21 @@ timeout 10 uv run python app.py
 - `auth.py` - Authentication routes and handlers (61 lines)
 - `habits.py` - Habit management routes (112 lines)
 - `notes.py` - Daily notes functionality (69 lines)
+- `todos.py` - Todo list management routes (118 lines)
 - `birthdays.py` - Birthday reminder routes (142 lines)
 - `watchlist.py` - Movies/series watchlist routes (205 lines)
-- `settings.py` - Data management and account settings (166 lines)
+- `settings.py` - Data management and account settings (290 lines)
 
 ### Data Models (Modular Architecture)
-- `models/` - Modular model package (697 total lines)
+- `models/` - Modular model package (902+ total lines)
   - `models/__init__.py` - Package exports and documentation (19 lines)
   - `models/user.py` - User authentication and account management (110 lines)
   - `models/habit.py` - Habit tracking and completion logic (211 lines)
   - `models/note.py` - Daily journaling functionality (69 lines)
+  - `models/todo.py` - Todo list management and tracking (205 lines)
   - `models/birthday.py` - Birthday reminder system (139 lines)
   - `models/watchlist.py` - Movies/series tracking (213 lines)
-  - `models/data_manager.py` - Data export/import functionality (319 lines)
+  - `models/data_manager.py` - Data export/import functionality (564 lines)
 
 ### Templates (Responsive UI)
 - `templates/` - Jinja2 HTML templates with form-based interactions
@@ -74,13 +76,16 @@ timeout 10 uv run python app.py
   - `add_habit_page.html` - Dedicated add habit page
   - `edit_habit_page.html` - Dedicated edit habit page
   - `notes.html` - Daily notes journaling interface
+  - `todos.html` - Todo list management with smart organization
+  - `add_todo_page.html` - Add todo form page
+  - `edit_todo_page.html` - Edit todo form page
   - `birthdays.html` - Birthday reminders main page
   - `add_birthday_page.html` - Add birthday form page
   - `edit_birthday_page.html` - Edit birthday form page
   - `watchlist.html` - Movies/series watchlist main page
   - `add_movie_page.html` - Add movie/series form page
   - `edit_movie_page.html` - Edit movie/series form page
-  - `settings.html` - Comprehensive settings and data management page
+  - `settings.html` - Comprehensive settings and data management page with mobile optimization
   - `landing.html` - Marketing landing page showcasing all features
   - `login.html` / `signup.html` - Authentication pages
   - `habits_container.html` - Habit cards grid component
@@ -110,6 +115,7 @@ timeout 10 uv run python app.py
 - `habits` - User's custom habits with points and descriptions  
 - `habit_completions` - Daily completion tracking with date constraints
 - `daily_notes` - User's daily journaling with date-based organization
+- `todos` - Task management with priorities, due dates, categories, and soft delete
 - `birthdays` - Birthday reminders with relationship types and notes
 - `watchlist` - Movies/series tracking with status, progress, and ratings
 
@@ -153,6 +159,15 @@ timeout 10 uv run python app.py
 - `/habitstack/notes/<date>/save` (POST) - Save note for date
 - `/habitstack/notes/<date>/delete` (POST) - Delete note for date
 
+### Todo List Management
+- `/habitstack/todos` - Todo list main page with smart organization
+- `/habitstack/add-todo-page` - Add new todo form page
+- `/habitstack/add-todo` (POST) - Create todo handler
+- `/habitstack/edit-todo-page/<id>` - Edit todo form page
+- `/habitstack/edit-todo/<id>` (POST) - Update todo handler
+- `/habitstack/delete-todo/<id>` (POST) - Delete todo handler
+- `/habitstack/toggle-todo/<id>` (POST) - Toggle todo completion
+
 ### Birthday Reminders
 - `/habitstack/birthdays` - Birthday reminders main page
 - `/habitstack/add-birthday-page` - Add new birthday form page
@@ -172,9 +187,12 @@ timeout 10 uv run python app.py
 - `/habitstack/update-episode/<id>` (POST) - Update episode progress
 
 ### Settings & Data Management
-- `/habitstack/settings` - Comprehensive settings page
-- `/habitstack/export` (POST) - Export all user data as JSON
-- `/habitstack/import` (POST) - Import user data from JSON file
+- `/habitstack/settings` - Comprehensive settings page with mobile optimization
+- `/habitstack/export` (POST) - Export all user data as JSON (legacy)
+- `/habitstack/export-modules` (POST) - Export selected modules as JSON
+- `/habitstack/import` (POST) - Import user data from JSON file (legacy)
+- `/habitstack/import-modules` (POST) - Import selected modules from JSON
+- `/habitstack/analyze-import` (POST) - Analyze import file contents
 - `/habitstack/update-password` (POST) - Update user password
 - `/habitstack/delete-account` (POST) - Soft delete user account
 
@@ -212,6 +230,15 @@ timeout 10 uv run python app.py
 - Recent notes history with previews
 - Complete user data isolation
 
+### Todo List Management
+- Smart organization by status (overdue, today, upcoming, someday, completed)
+- Priority levels with visual color coding (high, medium, low)
+- Due date tracking with overdue highlighting
+- Category system for task organization
+- Progress statistics and completion tracking
+- Full CRUD operations with dedicated form pages
+- Mobile-optimized responsive design
+
 ### Birthday Reminders
 - Today's birthdays with special highlighting
 - Upcoming birthdays with countdown (next 30 days)
@@ -230,11 +257,15 @@ timeout 10 uv run python app.py
 - Support for movies, series, documentaries, anime, and mini-series
 
 ### Data Management & Settings
+- **Modular Data Export** - Select specific modules to export with live counts
 - **Complete JSON Export** - Download all user data with timestamp
+- **Modular Data Import** - Choose which modules to import with strategies
 - **Full Data Import** - Replace all data from backup file with validation
+- **File Analysis** - Preview import file contents before importing
 - **Data Portability** - JSON format for migration and analysis
 - **Password Management** - Secure password updates with strength validation
 - **Account Deletion** - Professional soft delete with multiple safeguards
+- **Mobile Optimization** - Fully responsive settings interface
 - **Backup Recommendations** - Clear warnings and export reminders
 - **Safety Features** - Double confirmation for destructive actions
 
@@ -258,6 +289,7 @@ timeout 10 uv run python app.py
 - Dashboard: View and complete habits (primary focus)
 - Habits: Add, edit, delete, and organize habits
 - Notes: Daily journaling and reflection
+- Todos: Task management with smart organization
 - Birthdays: Birthday reminders and relationship tracking
 - Watchlist: Movies/series entertainment tracking
 - Settings: Data management and account preferences
@@ -319,19 +351,40 @@ See `DEPLOYMENT.md` for complete production deployment guide including:
 
 ## Recent Major Updates
 
-### Comprehensive Account Management (Latest)
+### Mobile Responsiveness Optimization (Latest)
+- Enhanced settings page with comprehensive mobile optimization
+- Improved container padding and spacing for small screens  
+- Made module selection grids responsive (1 column mobile, 2 desktop)
+- Converted button layouts to stack vertically on mobile
+- Added full-width buttons with proper touch targets
+- Enhanced icon sizing and text truncation for mobile devices
+- Optimized form elements and input fields for mobile use
+
+### Todo List Feature Integration
+- Added comprehensive todo list management functionality
+- Created smart organization by status (overdue, today, upcoming, someday, completed)
+- Implemented priority levels with visual color coding
+- Built due date tracking with overdue highlighting
+- Added category system for task organization
+- Created dedicated form pages for todo CRUD operations
+- Integrated todos into modular data export/import system
+- Added 205+ lines of todo management functionality
+
+### Modular Data Export/Import System
+- Built comprehensive module selection interface for exports/imports
+- Added live data counts for each module during selection
+- Implemented file analysis for import preview functionality
+- Created import strategies (replace vs merge) for flexible data handling
+- Enhanced data validation for both modular and legacy exports
+- Added robust error handling and user feedback systems
+- Extended data manager with 245+ lines of modular functionality
+
+### Comprehensive Account Management
 - Added password update functionality with current password verification
 - Implemented soft delete account system with data preservation
 - Created professional danger zone UI with multiple confirmation layers
 - Enhanced settings page with complete account management features
 - Added 316+ lines of security and account management functionality
-
-### Data Export/Import System
-- Built comprehensive JSON export of all user data
-- Implemented full data import with replace functionality
-- Created professional settings page for data management
-- Added robust validation and error handling
-- Supports backup/restore and data portability use cases
 
 ### Navigation Architecture Refactoring
 - Split monolithic 653-line models.py into focused modular packages
@@ -368,4 +421,4 @@ See `DEPLOYMENT.md` for complete production deployment guide including:
 - Optimized cache size (10MB) and synchronization settings
 - Split monolithic application into modular Blueprint architecture
 
-This creates HabitStack as a comprehensive personal life organizer with five core features: habit tracking, daily notes, birthday reminders, entertainment watchlist, and data management - all working together in a maintainable, reliable, secure, and universally compatible web application with enterprise-level account management capabilities.
+This creates HabitStack as a comprehensive personal life organizer with six core features: habit tracking, daily notes, todo list management, birthday reminders, entertainment watchlist, and data management - all working together in a maintainable, reliable, secure, and universally compatible web application with enterprise-level account management capabilities and optimized mobile responsiveness.
