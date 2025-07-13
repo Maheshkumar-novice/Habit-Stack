@@ -14,6 +14,7 @@ from auth import auth_bp
 from habits import habits_bp
 from notes import notes_bp
 from birthdays import birthdays_bp
+from watchlist import watchlist_bp
 
 # Flask app setup
 app = Flask(__name__, static_url_path='/habitstack/static')
@@ -24,6 +25,7 @@ app.register_blueprint(auth_bp)
 app.register_blueprint(habits_bp)
 app.register_blueprint(notes_bp)
 app.register_blueprint(birthdays_bp)
+app.register_blueprint(watchlist_bp)
 
 # Create main blueprint for dashboard and landing
 main_bp = Blueprint('main', __name__)

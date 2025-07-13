@@ -188,6 +188,25 @@ def init_db():
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users (id)
             );
+            
+            CREATE TABLE IF NOT EXISTS watchlist (
+                id INTEGER PRIMARY KEY,
+                user_id INTEGER NOT NULL,
+                title TEXT NOT NULL,
+                type TEXT NOT NULL,
+                genre TEXT,
+                status TEXT NOT NULL DEFAULT 'want_to_watch',
+                priority TEXT DEFAULT 'medium',
+                rating INTEGER,
+                notes TEXT,
+                current_episode INTEGER DEFAULT 0,
+                total_episodes INTEGER,
+                release_year INTEGER,
+                date_added DATE DEFAULT CURRENT_DATE,
+                date_completed DATE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users (id)
+            );
         """)
         
         # Create indexes for better performance
@@ -198,6 +217,9 @@ def init_db():
             CREATE INDEX IF NOT EXISTS idx_notes_user_date ON daily_notes(user_id, note_date);
             CREATE INDEX IF NOT EXISTS idx_birthdays_user_id ON birthdays(user_id);
             CREATE INDEX IF NOT EXISTS idx_birthdays_birth_date ON birthdays(birth_date);
+            CREATE INDEX IF NOT EXISTS idx_watchlist_user_id ON watchlist(user_id);
+            CREATE INDEX IF NOT EXISTS idx_watchlist_status ON watchlist(status);
+            CREATE INDEX IF NOT EXISTS idx_watchlist_type ON watchlist(type);
         """)
         
         conn.commit()

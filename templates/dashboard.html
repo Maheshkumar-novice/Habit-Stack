@@ -1,37 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
-<!-- Header -->
-<header class="bg-white shadow-sm">
-    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div class="flex h-16 items-center justify-between">
-            <div class="flex items-center">
-                <h1 class="text-xl font-semibold text-gray-900">HabitStack</h1>
-            </div>
-            <div class="flex items-center space-x-2 sm:space-x-4">
-                <span class="hidden sm:inline text-sm text-gray-600">{{ user.username }}</span>
-                <a href="/habitstack/habits" 
-                   class="rounded-md bg-white px-2 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm font-medium text-gray-700 hover:bg-gray-50 border border-gray-300 transition-colors">
-                    <span class="hidden sm:inline">Manage Habits</span>
-                    <span class="sm:hidden">Habits</span>
-                </a>
-                <a href="/habitstack/notes" 
-                   class="rounded-md bg-white px-2 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm font-medium text-gray-700 hover:bg-gray-50 border border-gray-300 transition-colors">
-                    Notes
-                </a>
-                <a href="/habitstack/birthdays" 
-                   class="rounded-md bg-white px-2 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm font-medium text-gray-700 hover:bg-gray-50 border border-gray-300 transition-colors">
-                    Birthdays
-                </a>
-                <a href="/habitstack/logout" 
-                   class="rounded-md bg-white px-2 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm font-medium text-gray-700 hover:bg-gray-50 border border-gray-300 transition-colors">
-                    <span class="hidden sm:inline">Sign Out</span>
-                    <span class="sm:hidden">Out</span>
-                </a>
-            </div>
-        </div>
-    </div>
-</header>
+{% set current_page = 'dashboard' %}
+{% set page_title = 'Dashboard' %}
+{% include 'navbar.html' %}
 
 <!-- Main Content -->
 <main class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">

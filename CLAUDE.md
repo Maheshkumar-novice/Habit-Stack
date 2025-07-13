@@ -42,12 +42,14 @@ timeout 10 uv run python app.py
 
 ## Project Structure
 
-- `app.py` - Main Flask application and configuration (56 lines)
-- `models.py` - User, Habit, and DailyNote data models (315 lines)
-- `database.py` - Connection pooling and optimization (185 lines)
+- `app.py` - Main Flask application and configuration (59 lines)
+- `models.py` - User, Habit, DailyNote, Birthday, and Watchlist data models (654 lines)
+- `database.py` - Connection pooling and optimization with all tables (226 lines)
 - `auth.py` - Authentication routes and handlers (60 lines)
 - `habits.py` - Habit management routes (112 lines)
 - `notes.py` - Daily notes functionality (60 lines)
+- `birthdays.py` - Birthday reminder routes (142 lines)
+- `watchlist.py` - Movies/series watchlist routes (205 lines)
 - `utils.py` - Validation helpers and decorators (40 lines)
 - `templates/` - Jinja2 HTML templates with form-based interactions
   - `base.html` - Base template with Tailwind CSS and PWA setup
@@ -56,7 +58,13 @@ timeout 10 uv run python app.py
   - `add_habit_page.html` - Dedicated add habit page
   - `edit_habit_page.html` - Dedicated edit habit page
   - `notes.html` - Daily notes journaling interface
-  - `landing.html` - Marketing landing page
+  - `birthdays.html` - Birthday reminders main page
+  - `add_birthday_page.html` - Add birthday form page
+  - `edit_birthday_page.html` - Edit birthday form page
+  - `watchlist.html` - Movies/series watchlist main page
+  - `add_movie_page.html` - Add movie/series form page
+  - `edit_movie_page.html` - Edit movie/series form page
+  - `landing.html` - Marketing landing page showcasing all features
   - `login.html` / `signup.html` - Authentication pages
   - `habits_container.html` - Habit cards grid component
   - `habit_card.html` - Individual habit card component
@@ -83,6 +91,8 @@ timeout 10 uv run python app.py
 - `habits` - User's custom habits with points and descriptions  
 - `habit_completions` - Daily completion tracking with date constraints
 - `daily_notes` - User's daily journaling with date-based organization
+- `birthdays` - Birthday reminders with relationship types and notes
+- `watchlist` - Movies/series tracking with status, progress, and ratings
 
 **Database Optimizations:**
 - SQLite with WAL mode for better concurrency
@@ -116,6 +126,24 @@ timeout 10 uv run python app.py
 - `/habitstack/notes/<date>/save` (POST) - Save note for date
 - `/habitstack/notes/<date>/delete` (POST) - Delete note for date
 
+*Birthday Reminders:*
+- `/habitstack/birthdays` - Birthday reminders main page
+- `/habitstack/add-birthday-page` - Add new birthday form page
+- `/habitstack/add-birthday` (POST) - Create birthday handler
+- `/habitstack/edit-birthday-page/<id>` - Edit birthday form page
+- `/habitstack/edit-birthday/<id>` (POST) - Update birthday handler
+- `/habitstack/delete-birthday/<id>` (POST) - Delete birthday handler
+
+*Movies/Series Watchlist:*
+- `/habitstack/watchlist` - Watchlist main page organized by status
+- `/habitstack/add-movie-page` - Add movie/series form page
+- `/habitstack/add-movie` (POST) - Create watchlist item handler
+- `/habitstack/edit-movie-page/<id>` - Edit movie/series form page
+- `/habitstack/edit-movie/<id>` (POST) - Update watchlist item handler
+- `/habitstack/delete-movie/<id>` (POST) - Delete watchlist item handler
+- `/habitstack/mark-completed/<id>` (POST) - Mark item as completed
+- `/habitstack/update-episode/<id>` (POST) - Update episode progress
+
 ## Key Features
 
 **User Experience:**
@@ -147,6 +175,23 @@ timeout 10 uv run python app.py
 - Recent notes history with previews
 - Complete user data isolation
 
+**Birthday Reminders:**
+- Today's birthdays with special highlighting
+- Upcoming birthdays with countdown (next 30 days)
+- Relationship type categorization (Family, Friend, Colleague, etc.)
+- Personal notes for each birthday
+- Smart date calculations for year transitions
+- Clean management interface with full CRUD operations
+
+**Movies/Series Watchlist:**
+- Status-based organization (Want to Watch, Currently Watching, Completed)
+- Episode progress tracking for TV series
+- Genre categorization and priority levels
+- Star rating system for completed items
+- Quick episode update functionality
+- Comprehensive statistics dashboard
+- Support for movies, series, documentaries, anime, and mini-series
+
 **Technical Features:**
 - Progressive Web App (PWA) for mobile installation
 - Service worker for offline capability
@@ -163,10 +208,12 @@ timeout 10 uv run python app.py
 - Flash messages for user feedback
 
 **Navigation Pattern:**
-- Dashboard: View and complete habits
+- Dashboard: View and complete habits (primary focus)
 - Manage Habits: Add, edit, delete, and organize habits
 - Notes: Daily journaling and reflection
-- Clear separation of tracking, management, and reflection
+- Birthdays: Birthday reminders and relationship tracking
+- Watchlist: Movies/series entertainment tracking
+- Clear separation of all features with consistent navigation
 
 **Database Operations:**
 - Context managers for proper connection handling
@@ -212,7 +259,26 @@ See `DEPLOYMENT.md` for complete production deployment guide including:
 
 ## Recent Changes
 
-**Daily Notes Feature (Latest):**
+**Movies/Series Watchlist Feature (Latest):**
+- Added comprehensive entertainment tracking functionality
+- Created separate `watchlist.py` blueprint (205 lines) with full CRUD operations
+- Implemented `Watchlist` model with 9 specialized methods for status management
+- Added `watchlist` table with status, progress, rating, and episode tracking
+- Built organized interface with sections for Want to Watch, Currently Watching, Completed
+- Integrated episode progress tracking for TV series
+- Added statistics dashboard and quick action functionality
+- Updated landing page to showcase as "Personal Life Organizer" with all 4 features
+
+**Birthday Reminders Feature:**
+- Added birthday tracking functionality for relationship management
+- Created separate `birthdays.py` blueprint (142 lines) with full CRUD operations
+- Implemented `Birthday` model with Python-based date calculations
+- Added `birthdays` table with relationship types and personal notes
+- Built interface with today's birthdays highlighting and upcoming countdown
+- Smart date handling for year transitions and recurring birthdays
+- Integrated birthday navigation across all pages
+
+**Daily Notes Feature:**
 - Added dedicated daily notes functionality for user journaling
 - Created separate `notes.py` blueprint with clean route organization
 - Implemented `DailyNote` model with full CRUD operations
@@ -239,4 +305,4 @@ See `DEPLOYMENT.md` for complete production deployment guide including:
 - Replaced AJAX calls with standard form submissions
 - Simplified JavaScript to only PWA service worker registration
 
-This creates a more maintainable, reliable, and universally compatible web application that works consistently across all browsers and devices.
+This creates HabitStack as a comprehensive personal life organizer with four core features: habit tracking, daily notes, birthday reminders, and entertainment watchlist - all working together in a maintainable, reliable, and universally compatible web application.

@@ -1,0 +1,149 @@
+<!-- Navbar Component -->
+<header class="bg-white shadow-sm relative">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="flex h-16 items-center justify-between">
+            <!-- Left: Logo/Title and Back Link -->
+            <div class="flex items-center space-x-3 min-w-0 flex-1">
+                {% if back_link %}
+                <a href="{{ back_link.url }}" class="text-sm text-gray-600 hover:text-gray-900 transition-colors">
+                    {{ back_link.text }}
+                </a>
+                {% endif %}
+                <a href="/habitstack/" class="text-xl font-semibold text-gray-900 hover:text-blue-600 transition-colors">
+                    HabitStack
+                </a>
+                {% if page_title and page_title != 'Dashboard' %}
+                <span class="hidden sm:inline text-gray-400">•</span>
+                <h1 class="hidden sm:block text-lg font-medium text-gray-700 truncate">{{ page_title }}</h1>
+                {% endif %}
+            </div>
+
+            <!-- Desktop Navigation (hidden on mobile) -->
+            <div class="hidden lg:flex items-center space-x-4">
+                <nav class="flex space-x-1">
+                    <a href="/habitstack/" 
+                       class="px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors {{ 'bg-blue-50 text-blue-700' if current_page == 'dashboard' else '' }}">
+                        Dashboard
+                    </a>
+                    <a href="/habitstack/habits" 
+                       class="px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors {{ 'bg-blue-50 text-blue-700' if current_page == 'habits' else '' }}">
+                        Manage Habits
+                    </a>
+                    <a href="/habitstack/notes" 
+                       class="px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors {{ 'bg-blue-50 text-blue-700' if current_page == 'notes' else '' }}">
+                        Notes
+                    </a>
+                    <a href="/habitstack/birthdays" 
+                       class="px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors {{ 'bg-blue-50 text-blue-700' if current_page == 'birthdays' else '' }}">
+                        Birthdays
+                    </a>
+                    <a href="/habitstack/watchlist" 
+                       class="px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors {{ 'bg-blue-50 text-blue-700' if current_page == 'watchlist' else '' }}">
+                        Watchlist
+                    </a>
+                </nav>
+                
+                <!-- User Controls -->
+                <div class="flex items-center space-x-3 ml-6 pl-6 border-l border-gray-200">
+                    <span class="text-sm text-gray-600">{{ user.username }}</span>
+                    <a href="/habitstack/logout" 
+                       class="px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors">
+                        Sign Out
+                    </a>
+                </div>
+            </div>
+
+            <!-- Mobile: User + Hamburger Menu -->
+            <div class="lg:hidden flex items-center space-x-3">
+                <span class="text-sm text-gray-600">{{ user.username }}</span>
+                
+                <!-- Hamburger Menu Toggle -->
+                <button id="mobile-menu-toggle" class="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobile-menu" class="lg:hidden fixed inset-0 z-50 hidden">
+        <!-- Background overlay -->
+        <div class="fixed inset-0 bg-black bg-opacity-25"></div>
+        
+        <!-- Menu panel -->
+        <div class="fixed top-0 right-0 h-full w-80 max-w-sm bg-white shadow-xl transform transition-transform translate-x-0">
+            <div class="flex h-16 items-center justify-between px-4 border-b border-gray-200">
+                <span class="text-lg font-semibold text-gray-900">Menu</span>
+                <button data-close-menu class="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <nav class="px-4 py-6 space-y-1">
+                <a href="/habitstack/" 
+                   class="block px-4 py-3 text-base font-medium text-gray-900 hover:bg-gray-50 rounded-md transition-colors {{ 'bg-blue-50 text-blue-700' if current_page == 'dashboard' else '' }}">
+                    📊 Dashboard
+                </a>
+                <a href="/habitstack/habits" 
+                   class="block px-4 py-3 text-base font-medium text-gray-900 hover:bg-gray-50 rounded-md transition-colors {{ 'bg-blue-50 text-blue-700' if current_page == 'habits' else '' }}">
+                    ✓ Manage Habits
+                </a>
+                <a href="/habitstack/notes" 
+                   class="block px-4 py-3 text-base font-medium text-gray-900 hover:bg-gray-50 rounded-md transition-colors {{ 'bg-blue-50 text-blue-700' if current_page == 'notes' else '' }}">
+                    📝 Daily Notes
+                </a>
+                <a href="/habitstack/birthdays" 
+                   class="block px-4 py-3 text-base font-medium text-gray-900 hover:bg-gray-50 rounded-md transition-colors {{ 'bg-blue-50 text-blue-700' if current_page == 'birthdays' else '' }}">
+                    🎂 Birthdays
+                </a>
+                <a href="/habitstack/watchlist" 
+                   class="block px-4 py-3 text-base font-medium text-gray-900 hover:bg-gray-50 rounded-md transition-colors {{ 'bg-blue-50 text-blue-700' if current_page == 'watchlist' else '' }}">
+                    🎬 Watchlist
+                </a>
+            </nav>
+            
+            <div class="px-4 py-6 border-t border-gray-200">
+                <a href="/habitstack/logout" 
+                   class="block px-4 py-3 text-base font-medium text-red-600 hover:bg-red-50 rounded-md transition-colors">
+                    👋 Sign Out
+                </a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- JavaScript for hamburger menu functionality -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const menuToggle = document.getElementById('mobile-menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const menuCloseButtons = document.querySelectorAll('[data-close-menu]');
+    
+    // Toggle menu
+    if (menuToggle) {
+        menuToggle.addEventListener('click', function() {
+            mobileMenu.classList.toggle('hidden');
+        });
+    }
+    
+    // Close menu when clicking close button or overlay
+    menuCloseButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            mobileMenu.classList.add('hidden');
+        });
+    });
+    
+    // Close menu when clicking outside
+    if (mobileMenu) {
+        mobileMenu.addEventListener('click', function(e) {
+            if (e.target === mobileMenu) {
+                mobileMenu.classList.add('hidden');
+            }
+        });
+    }
+});
+</script>

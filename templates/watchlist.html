@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% set current_page = 'watchlist' %}
+{% set page_title = 'Movies & Series' %}
+{% set back_link = {'url': '/habitstack/', 'text': '← Back to Dashboard'} %}
+{% include 'navbar.html' %}
+
+<!-- Main Content -->
+<main class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+            <div class="mb-6 rounded-md {% if category == 'error' %}bg-red-50 border border-red-200{% else %}bg-green-50 border border-green-200{% endif %} p-4">
+                <p class="text-sm {% if category == 'error' %}text-red-800{% else %}text-green-800{% endif %}">{{ message }}</p>
+            </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- Page Header -->
+    <div class="mb-6 sm:mb-8">
+        <h2 class="text-xl sm:text-2xl font-bold text-gray-900">Your Watchlist</h2>
+        <p class="mt-1 text-sm text-gray-600">Track movies and series you want to watch</p>
+    </div>
+
+    <!-- Statistics -->
+    <div class="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div class="bg-white rounded-lg border border-gray-200 p-4 text-center">
+            <div class="text-2xl font-bold text-blue-600">{{ stats.total }}</div>
+            <div class="text-xs text-gray-600">Total Items</div>
+        </div>
+        <div class="bg-white rounded-lg border border-gray-200 p-4 text-center">
+            <div class="text-2xl font-bold text-orange-600">{{ stats.watching }}</div>
+            <div class="text-xs text-gray-600">Watching</div>
+        </div>
+        <div class="bg-white rounded-lg border border-gray-200 p-4 text-center">
+            <div class="text-2xl font-bold text-green-600">{{ stats.want_to_watch }}</div>
+            <div class="text-xs text-gray-600">Want to Watch</div>
+        </div>
+        <div class="bg-white rounded-lg border border-gray-200 p-4 text-center">
+            <div class="text-2xl font-bold text-purple-600">{{ stats.completed }}</div>
+            <div class="text-xs text-gray-600">Completed</div>
+        </div>
+    </div>
+
+    <!-- Add New Button -->
+    <div class="mb-6">
+        <a href="/habitstack/add-movie-page"
+           class="inline-flex items-center rounded-md bg-blue-600 px-3 py-2 sm:px-4 sm:py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 transition-colors">
+            <svg class="-ml-0.5 mr-1.5 h-4 w-4 sm:h-5 sm:w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
+            </svg>
+            <span class="hidden sm:inline">Add Movie/Series</span>
+            <span class="sm:hidden">Add Item</span>
+        </a>
+    </div>
+
+    <!-- Currently Watching -->
+    {% if watching %}
+    <div class="mb-8 bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
+        <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 bg-orange-50">
+            <h3 class="text-base sm:text-lg font-medium text-orange-900 flex items-center">
+                📺 Currently Watching ({{ watching|length }})
+            </h3>
+        </div>
+        <div class="divide-y divide-gray-200">
+            {% for item in watching %}
+            <div class="px-4 sm:px-6 py-4 hover:bg-gray-50 transition-colors">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-3">
+                            <h4 class="text-base sm:text-lg font-medium text-gray-900 truncate">{{ item.title }}</h4>
+                            <span class="inline-flex items-center rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800 w-fit">
+                                {{ item.type|title }}
+                            </span>
+                            {% if item.genre %}
+                            <span class="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-800 w-fit">
+                                {{ item.genre }}
+                            </span>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500">
+                            {% if item.release_year %}
+                            <span>{{ item.release_year }}</span>
+                            {% endif %}
+                            {% if item.type == 'series' and item.total_episodes %}
+                            <span>Episode {{ item.current_episode or 0 }}/{{ item.total_episodes }}</span>
+                            {% endif %}
+                            <span>Added: {{ item.date_added }}</span>
+                        </div>
+                        
+                        {% if item.notes %}
+                        <p class="mt-2 text-sm text-gray-600 line-clamp-2">{{ item.notes }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="flex items-center space-x-2 flex-shrink-0">
+                        {% if item.type == 'series' %}
+                        <form method="post" action="/habitstack/update-episode/{{ item.id }}" style="display: inline;" class="flex items-center space-x-1">
+                            <input type="number" name="current_episode" value="{{ item.current_episode or 0 }}" min="0" class="w-16 px-2 py-1 text-xs border border-gray-300 rounded" placeholder="Ep">
+                            <button type="submit" class="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded hover:bg-orange-200 transition-colors">Update</button>
+                        </form>
+                        {% endif %}
+                        <a href="/habitstack/edit-movie-page/{{ item.id }}"
+                           class="inline-flex items-center rounded-md bg-white px-2 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 border border-gray-300 transition-colors">
+                            Edit
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Want to Watch -->
+    {% if want_to_watch %}
+    <div class="mb-8 bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
+        <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 bg-green-50">
+            <h3 class="text-base sm:text-lg font-medium text-green-900 flex items-center">
+                📋 Want to Watch ({{ want_to_watch|length }})
+            </h3>
+        </div>
+        <div class="divide-y divide-gray-200">
+            {% for item in want_to_watch %}
+            <div class="px-4 sm:px-6 py-4 hover:bg-gray-50 transition-colors">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-3">
+                            <h4 class="text-base sm:text-lg font-medium text-gray-900 truncate">{{ item.title }}</h4>
+                            <span class="inline-flex items-center rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800 w-fit">
+                                {{ item.type|title }}
+                            </span>
+                            {% if item.genre %}
+                            <span class="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-800 w-fit">
+                                {{ item.genre }}
+                            </span>
+                            {% endif %}
+                            {% if item.priority == 'high' %}
+                            <span class="inline-flex items-center rounded-full bg-red-100 px-2 py-1 text-xs font-medium text-red-800 w-fit">
+                                High Priority
+                            </span>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500">
+                            {% if item.release_year %}
+                            <span>{{ item.release_year }}</span>
+                            {% endif %}
+                            {% if item.type == 'series' and item.total_episodes %}
+                            <span>{{ item.total_episodes }} episodes</span>
+                            {% endif %}
+                            <span>Added: {{ item.date_added }}</span>
+                        </div>
+                        
+                        {% if item.notes %}
+                        <p class="mt-2 text-sm text-gray-600 line-clamp-2">{{ item.notes }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="flex items-center space-x-2 flex-shrink-0">
+                        <a href="/habitstack/edit-movie-page/{{ item.id }}"
+                           class="inline-flex items-center rounded-md bg-white px-2 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 border border-gray-300 transition-colors">
+                            Edit
+                        </a>
+                        <form method="post" action="/habitstack/delete-movie/{{ item.id }}" style="display: inline;" onsubmit="return confirm('Remove {{ item.title }} from watchlist?')">
+                            <button type="submit" class="inline-flex items-center rounded-md bg-white px-2 py-1.5 text-xs font-medium text-red-700 hover:bg-red-50 border border-red-300 transition-colors">
+                                Remove
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Completed -->
+    {% if completed %}
+    <div class="mb-8 bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
+        <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 bg-purple-50">
+            <h3 class="text-base sm:text-lg font-medium text-purple-900 flex items-center">
+                ✅ Completed ({{ completed|length }})
+            </h3>
+        </div>
+        <div class="divide-y divide-gray-200">
+            {% for item in completed %}
+            <div class="px-4 sm:px-6 py-4 hover:bg-gray-50 transition-colors">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-3">
+                            <h4 class="text-base sm:text-lg font-medium text-gray-900 truncate">{{ item.title }}</h4>
+                            <span class="inline-flex items-center rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800 w-fit">
+                                {{ item.type|title }}
+                            </span>
+                            {% if item.genre %}
+                            <span class="inline-flex items-center rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-800 w-fit">
+                                {{ item.genre }}
+                            </span>
+                            {% endif %}
+                            {% if item.rating %}
+                            <span class="inline-flex items-center rounded-full bg-yellow-100 px-2 py-1 text-xs font-medium text-yellow-800 w-fit">
+                                {% for i in range(item.rating) %}⭐{% endfor %}
+                            </span>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500">
+                            {% if item.release_year %}
+                            <span>{{ item.release_year }}</span>
+                            {% endif %}
+                            {% if item.date_completed %}
+                            <span>Completed: {{ item.date_completed }}</span>
+                            {% endif %}
+                        </div>
+                        
+                        {% if item.notes %}
+                        <p class="mt-2 text-sm text-gray-600 line-clamp-2">{{ item.notes }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="flex items-center space-x-2 flex-shrink-0">
+                        <a href="/habitstack/edit-movie-page/{{ item.id }}"
+                           class="inline-flex items-center rounded-md bg-white px-2 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 border border-gray-300 transition-colors">
+                            Edit
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Empty State -->
+    {% if not watching and not want_to_watch and not completed %}
+    <div class="text-center py-12 bg-white rounded-lg border border-gray-200">
+        <div class="mx-auto h-12 w-12 text-gray-400 text-4xl">🎬</div>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">No movies or series yet</h3>
+        <p class="mt-1 text-sm text-gray-500">Start building your watchlist by adding your first movie or series.</p>
+        <div class="mt-6">
+            <a href="/habitstack/add-movie-page"
+               class="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500">
+                <svg class="-ml-0.5 mr-1.5 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
+                </svg>
+                Add your first movie/series
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</main>
+{% endblock %}
