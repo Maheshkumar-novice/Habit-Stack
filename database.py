@@ -210,6 +210,25 @@ def init_db():
             );
         """)
         
+        # Create todos table
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS todos (
+                id INTEGER PRIMARY KEY,
+                user_id INTEGER NOT NULL,
+                title TEXT NOT NULL,
+                description TEXT,
+                priority TEXT DEFAULT 'medium',
+                due_date DATE,
+                category TEXT,
+                completed BOOLEAN DEFAULT 0,
+                completed_at TIMESTAMP,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                deleted_at TIMESTAMP NULL,
+                FOREIGN KEY (user_id) REFERENCES users (id)
+            );
+        """)
+        
         # Add deleted_at column to existing users table if it doesn't exist
         try:
             conn.execute("ALTER TABLE users ADD COLUMN deleted_at TIMESTAMP NULL")
@@ -230,6 +249,11 @@ def init_db():
             CREATE INDEX IF NOT EXISTS idx_watchlist_status ON watchlist(status);
             CREATE INDEX IF NOT EXISTS idx_watchlist_type ON watchlist(type);
             CREATE INDEX IF NOT EXISTS idx_users_deleted ON users(deleted_at);
+            CREATE INDEX IF NOT EXISTS idx_todos_user_id ON todos(user_id);
+            CREATE INDEX IF NOT EXISTS idx_todos_due_date ON todos(due_date);
+            CREATE INDEX IF NOT EXISTS idx_todos_priority ON todos(priority);
+            CREATE INDEX IF NOT EXISTS idx_todos_completed ON todos(completed);
+            CREATE INDEX IF NOT EXISTS idx_todos_deleted ON todos(deleted_at);
         """)
         
         conn.commit()

@@ -13,6 +13,7 @@ from utils import get_current_user
 from auth import auth_bp
 from habits import habits_bp
 from notes import notes_bp
+from todos import todos_bp
 from birthdays import birthdays_bp
 from watchlist import watchlist_bp
 from settings import settings_bp
@@ -25,6 +26,7 @@ app.secret_key = os.environ.get('SECRET_KEY', 'dev-key-change-in-production')
 app.register_blueprint(auth_bp)
 app.register_blueprint(habits_bp)
 app.register_blueprint(notes_bp)
+app.register_blueprint(todos_bp)
 app.register_blueprint(birthdays_bp)
 app.register_blueprint(watchlist_bp)
 app.register_blueprint(settings_bp)
