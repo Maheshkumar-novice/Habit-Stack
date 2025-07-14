@@ -52,20 +52,22 @@ timeout 10 uv run python app.py
 - `habits.py` - Habit management routes (112 lines)
 - `notes.py` - Daily notes functionality (69 lines)
 - `todos.py` - Todo list management routes (118 lines)
+- `reading.py` - Reading list management routes (195 lines)
 - `birthdays.py` - Birthday reminder routes (142 lines)
 - `watchlist.py` - Movies/series watchlist routes (205 lines)
 - `settings.py` - Data management and account settings (290 lines)
 
 ### Data Models (Modular Architecture)
-- `models/` - Modular model package (902+ total lines)
+- `models/` - Modular model package (1100+ total lines)
   - `models/__init__.py` - Package exports and documentation (19 lines)
   - `models/user.py` - User authentication and account management (110 lines)
   - `models/habit.py` - Habit tracking and completion logic (211 lines)
   - `models/note.py` - Daily journaling functionality (69 lines)
   - `models/todo.py` - Todo list management and tracking (205 lines)
+  - `models/reading.py` - Reading list management and tracking (198 lines)
   - `models/birthday.py` - Birthday reminder system (139 lines)
   - `models/watchlist.py` - Movies/series tracking (213 lines)
-  - `models/data_manager.py` - Data export/import functionality (564 lines)
+  - `models/data_manager.py` - Data export/import functionality (585 lines)
 
 ### Templates (Responsive UI)
 - `templates/` - Jinja2 HTML templates with form-based interactions
@@ -79,6 +81,9 @@ timeout 10 uv run python app.py
   - `todos.html` - Todo list management with smart organization
   - `add_todo_page.html` - Add todo form page
   - `edit_todo_page.html` - Edit todo form page
+  - `reading.html` - Reading list main page with status-based organization
+  - `add_book_page.html` - Add book form page
+  - `edit_book_page.html` - Edit book form page
   - `birthdays.html` - Birthday reminders main page
   - `add_birthday_page.html` - Add birthday form page
   - `edit_birthday_page.html` - Edit birthday form page
@@ -116,6 +121,7 @@ timeout 10 uv run python app.py
 - `habit_completions` - Daily completion tracking with date constraints
 - `daily_notes` - User's daily journaling with date-based organization
 - `todos` - Task management with priorities, due dates, categories, and soft delete
+- `reading_list` - Book tracking with progress, status, ratings, and notes
 - `birthdays` - Birthday reminders with relationship types and notes
 - `watchlist` - Movies/series tracking with status, progress, and ratings
 
@@ -167,6 +173,17 @@ timeout 10 uv run python app.py
 - `/habitstack/edit-todo/<id>` (POST) - Update todo handler
 - `/habitstack/delete-todo/<id>` (POST) - Delete todo handler
 - `/habitstack/toggle-todo/<id>` (POST) - Toggle todo completion
+
+### Reading List Management
+- `/habitstack/reading` - Reading list main page organized by status
+- `/habitstack/add-book-page` - Add new book form page
+- `/habitstack/add-book` (POST) - Create book handler
+- `/habitstack/edit-book-page/<id>` - Edit book form page
+- `/habitstack/edit-book/<id>` (POST) - Update book handler
+- `/habitstack/delete-book/<id>` (POST) - Delete book handler
+- `/habitstack/mark-reading/<id>` (POST) - Mark book as currently reading
+- `/habitstack/mark-book-completed/<id>` (POST) - Mark book as completed
+- `/habitstack/update-book-progress/<id>` (POST) - Update reading progress
 
 ### Birthday Reminders
 - `/habitstack/birthdays` - Birthday reminders main page
@@ -239,6 +256,15 @@ timeout 10 uv run python app.py
 - Full CRUD operations with dedicated form pages
 - Mobile-optimized responsive design
 
+### Reading List Management
+- Status-based organization (Want to Read, Currently Reading, Completed)
+- Progress tracking with current page/total pages and percentage calculation
+- 5-star rating system for completed books with visual indicators
+- Personal notes for each book with rich textarea editing
+- Quick action buttons for status changes and progress updates
+- Comprehensive statistics dashboard with reading metrics
+- Mobile-responsive design with intuitive book management
+
 ### Birthday Reminders
 - Today's birthdays with special highlighting
 - Upcoming birthdays with countdown (next 30 days)
@@ -290,6 +316,7 @@ timeout 10 uv run python app.py
 - Habits: Add, edit, delete, and organize habits
 - Notes: Daily journaling and reflection
 - Todos: Task management with smart organization
+- Reading: Book tracking and reading progress management
 - Birthdays: Birthday reminders and relationship tracking
 - Watchlist: Movies/series entertainment tracking
 - Settings: Data management and account preferences
@@ -351,7 +378,20 @@ See `DEPLOYMENT.md` for complete production deployment guide including:
 
 ## Recent Major Updates
 
-### Mobile Responsiveness Optimization (Latest)
+### Reading List Feature Integration (Latest)
+- Added comprehensive book tracking functionality following watchlist patterns
+- Created status-based organization (Want to Read, Currently Reading, Completed)
+- Implemented progress tracking with current page/total pages and percentage calculation
+- Built 5-star rating system for completed books with visual indicators
+- Added personal notes for each book with rich textarea editing
+- Created quick action buttons for status changes and progress updates
+- Built comprehensive statistics dashboard with reading metrics
+- Integrated reading into modular data export/import system
+- Added reading navigation to both desktop and mobile interfaces
+- Created dedicated form pages for book CRUD operations
+- Added 198+ lines of reading management functionality
+
+### Mobile Responsiveness Optimization
 - Enhanced settings page with comprehensive mobile optimization
 - Improved container padding and spacing for small screens  
 - Made module selection grids responsive (1 column mobile, 2 desktop)
@@ -421,4 +461,4 @@ See `DEPLOYMENT.md` for complete production deployment guide including:
 - Optimized cache size (10MB) and synchronization settings
 - Split monolithic application into modular Blueprint architecture
 
-This creates HabitStack as a comprehensive personal life organizer with six core features: habit tracking, daily notes, todo list management, birthday reminders, entertainment watchlist, and data management - all working together in a maintainable, reliable, secure, and universally compatible web application with enterprise-level account management capabilities and optimized mobile responsiveness.
+This creates HabitStack as a comprehensive personal life organizer with seven core features: habit tracking, daily notes, todo list management, reading list management, birthday reminders, entertainment watchlist, and data management - all working together in a maintainable, reliable, secure, and universally compatible web application with enterprise-level account management capabilities and optimized mobile responsiveness.
