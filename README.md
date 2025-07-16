@@ -1,6 +1,6 @@
 # HabitStack
 
-Personal life organizer with habit tracking, daily notes, todo list management, reading list, birthday reminders, watchlist, and comprehensive data management.
+Personal life organizer with habit tracking, daily notes, todo list management, reading list, birthday reminders, watchlist, sports news aggregation, and comprehensive data management.
 
 ## Quick Start
 
@@ -22,6 +22,7 @@ uv run python app.py
 - Reading list with progress tracking and ratings
 - Birthday reminders with relationship tracking
 - Movies/series watchlist with progress tracking
+- Sports news aggregation from multiple sources (BBC Sport, Sky Sports, Goal.com, Reddit r/soccer)
 - Modular data export/import with file analysis
 - Comprehensive account management with password updates
 - Progressive Web App (PWA) for mobile installation
@@ -48,7 +49,7 @@ uv add <package>        # Add new dependency
 ```
 ├── app.py              # Main Flask application
 ├── database.py         # Database connection and tables
-├── models/             # Data models (user, habit, note, todo, reading, birthday, watchlist, data_manager)
+├── models/             # Data models (user, habit, note, todo, reading, birthday, watchlist, sports, data_manager)
 ├── auth.py             # Authentication routes
 ├── habits.py           # Habit management
 ├── notes.py            # Daily notes
@@ -56,6 +57,7 @@ uv add <package>        # Add new dependency
 ├── reading.py          # Reading list management
 ├── birthdays.py        # Birthday reminders
 ├── watchlist.py        # Movies/series tracking
+├── sports.py           # Sports news aggregation
 ├── settings.py         # Account and data management
 └── templates/          # HTML templates with mobile optimization
 ```
@@ -72,4 +74,5 @@ All routes prefixed with `/habitstack/`:
 - `/reading` - Reading list with progress tracking and ratings
 - `/birthdays` - Birthday reminders with relationship tracking
 - `/watchlist` - Movies/series tracking with progress
+- `/sports` - Football transfer news aggregation with multi-source display
 - `/settings` - Account and modular data management

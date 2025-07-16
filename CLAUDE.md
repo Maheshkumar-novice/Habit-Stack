@@ -55,10 +55,11 @@ timeout 10 uv run python app.py
 - `reading.py` - Reading list management routes (195 lines)
 - `birthdays.py` - Birthday reminder routes (142 lines)
 - `watchlist.py` - Movies/series watchlist routes (205 lines)
+- `sports.py` - Sports news aggregation and caching (279 lines)
 - `settings.py` - Data management and account settings (290 lines)
 
 ### Data Models (Modular Architecture)
-- `models/` - Modular model package (1100+ total lines)
+- `models/` - Modular model package (1300+ total lines)
   - `models/__init__.py` - Package exports and documentation (19 lines)
   - `models/user.py` - User authentication and account management (110 lines)
   - `models/habit.py` - Habit tracking and completion logic (211 lines)
@@ -67,6 +68,7 @@ timeout 10 uv run python app.py
   - `models/reading.py` - Reading list management and tracking (198 lines)
   - `models/birthday.py` - Birthday reminder system (139 lines)
   - `models/watchlist.py` - Movies/series tracking (213 lines)
+  - `models/sports.py` - Sports news caching and management (165 lines)
   - `models/data_manager.py` - Data export/import functionality (585 lines)
 
 ### Templates (Responsive UI)
@@ -90,6 +92,7 @@ timeout 10 uv run python app.py
   - `watchlist.html` - Movies/series watchlist main page
   - `add_movie_page.html` - Add movie/series form page
   - `edit_movie_page.html` - Edit movie/series form page
+  - `sports.html` - Sports news aggregation interface with multi-source display
   - `settings.html` - Comprehensive settings and data management page with mobile optimization
   - `landing.html` - Marketing landing page showcasing all features
   - `login.html` / `signup.html` - Authentication pages
@@ -124,6 +127,7 @@ timeout 10 uv run python app.py
 - `reading_list` - Book tracking with progress, status, ratings, and notes
 - `birthdays` - Birthday reminders with relationship types and notes
 - `watchlist` - Movies/series tracking with status, progress, and ratings
+- `sports_news` - Football transfer news caching with multi-source aggregation
 
 **Database Optimizations:**
 - SQLite with WAL mode for better concurrency
@@ -202,6 +206,11 @@ timeout 10 uv run python app.py
 - `/habitstack/delete-movie/<id>` (POST) - Delete watchlist item handler
 - `/habitstack/mark-completed/<id>` (POST) - Mark item as completed
 - `/habitstack/update-episode/<id>` (POST) - Update episode progress
+
+### Sports News Aggregation
+- `/habitstack/sports` - Sports news main page with multi-source display
+- `/habitstack/sports/refresh` (POST) - Refresh news from all sources
+- `/habitstack/sports/clear` (POST) - Clear cached articles
 
 ### Settings & Data Management
 - `/habitstack/settings` - Comprehensive settings page with mobile optimization
@@ -282,6 +291,15 @@ timeout 10 uv run python app.py
 - Comprehensive statistics dashboard
 - Support for movies, series, documentaries, anime, and mini-series
 
+### Sports News Aggregation
+- Multi-source football transfer news fetching (BBC Sport, Sky Sports, Goal.com, Reddit r/soccer)
+- Intelligent article caching with 3-day retention and duplicate prevention
+- Real-time news refresh with user-friendly status updates
+- Responsive mobile-first interface with source-based organization
+- Article statistics and last update tracking
+- Manual cache management with clear functionality
+- Error handling with graceful degradation
+
 ### Data Management & Settings
 - **Modular Data Export** - Select specific modules to export with live counts
 - **Complete JSON Export** - Download all user data with timestamp
@@ -319,6 +337,7 @@ timeout 10 uv run python app.py
 - Reading: Book tracking and reading progress management
 - Birthdays: Birthday reminders and relationship tracking
 - Watchlist: Movies/series entertainment tracking
+- Sports: Football transfer news aggregation and reading
 - Settings: Data management and account preferences
 - Clear separation of all features with consistent navigation
 
@@ -378,7 +397,21 @@ See `DEPLOYMENT.md` for complete production deployment guide including:
 
 ## Recent Major Updates
 
-### Reading List Feature Integration (Latest)
+### Sports News Aggregation Feature (Latest)
+- Added comprehensive football transfer news aggregation from multiple sources
+- Implemented BBC Sport RSS feed, Sky Sports web scraping, Goal.com parsing, and Reddit r/soccer API integration
+- Created intelligent article caching system with 3-day retention and duplicate prevention
+- Built responsive sports.html interface with source-based organization and mobile-first design
+- Added sports navigation to both desktop and mobile interfaces with soccer ball emoji
+- Created SportsNews model for efficient article management and database operations
+- Added sports_news table with proper indexing and created_at timestamps
+- Integrated sports blueprint into main Flask application with proper URL routing
+- Added required web scraping dependencies: requests, beautifulsoup4, feedparser, lxml, rich
+- Consolidated all functionality into self-contained sports module (removed external news.py dependency)
+- Implemented refresh/clear functionality with user-friendly flash messages and error handling
+- Added 279+ lines of sports news aggregation functionality
+
+### Reading List Feature Integration
 - Added comprehensive book tracking functionality following watchlist patterns
 - Created status-based organization (Want to Read, Currently Reading, Completed)
 - Implemented progress tracking with current page/total pages and percentage calculation
@@ -461,4 +494,4 @@ See `DEPLOYMENT.md` for complete production deployment guide including:
 - Optimized cache size (10MB) and synchronization settings
 - Split monolithic application into modular Blueprint architecture
 
-This creates HabitStack as a comprehensive personal life organizer with seven core features: habit tracking, daily notes, todo list management, reading list management, birthday reminders, entertainment watchlist, and data management - all working together in a maintainable, reliable, secure, and universally compatible web application with enterprise-level account management capabilities and optimized mobile responsiveness.
+This creates HabitStack as a comprehensive personal life organizer with eight core features: habit tracking, daily notes, todo list management, reading list management, birthday reminders, entertainment watchlist, sports news aggregation, and data management - all working together in a maintainable, reliable, secure, and universally compatible web application with enterprise-level account management capabilities and optimized mobile responsiveness.
