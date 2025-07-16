@@ -250,6 +250,20 @@ def init_db():
             );
         """)
         
+        # Create sports_news table
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS sports_news (
+                id INTEGER PRIMARY KEY,
+                title TEXT NOT NULL,
+                link TEXT,
+                source TEXT NOT NULL,
+                published TEXT,
+                summary TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(title, source)
+            );
+        """)
+        
         # Add deleted_at column to existing users table if it doesn't exist
         try:
             conn.execute("ALTER TABLE users ADD COLUMN deleted_at TIMESTAMP NULL")
@@ -279,6 +293,8 @@ def init_db():
             CREATE INDEX IF NOT EXISTS idx_reading_status ON reading_list(status);
             CREATE INDEX IF NOT EXISTS idx_reading_deleted ON reading_list(deleted_at);
             CREATE INDEX IF NOT EXISTS idx_reading_user_status ON reading_list(user_id, status, deleted_at);
+            CREATE INDEX IF NOT EXISTS idx_sports_news_created_at ON sports_news(created_at);
+            CREATE INDEX IF NOT EXISTS idx_sports_news_source ON sports_news(source);
         """)
         
         conn.commit()

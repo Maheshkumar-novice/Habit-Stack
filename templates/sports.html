@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% set current_page = 'sports' %}
+{% set page_title = 'Sports News' %}
+{% set back_link = {'url': '/habitstack/', 'text': '←'} %}
+{% include 'navbar.html' %}
+
+<!-- Main Content -->
+<main class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+            <div class="mb-6 rounded-md {% if category == 'error' %}bg-red-50 border border-red-200{% elif category == 'warning' %}bg-yellow-50 border border-yellow-200{% elif category == 'info' %}bg-blue-50 border border-blue-200{% else %}bg-green-50 border border-green-200{% endif %} p-4">
+                <p class="text-sm {% if category == 'error' %}text-red-800{% elif category == 'warning' %}text-yellow-800{% elif category == 'info' %}text-blue-800{% else %}text-green-800{% endif %}">{{ message }}</p>
+            </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- Page Header -->
+    <div class="mb-6 sm:mb-8">
+        <h2 class="text-xl sm:text-2xl font-bold text-gray-900">Football Transfer News</h2>
+        <p class="mt-1 text-sm text-gray-600">Latest transfer news from multiple sources (last 3 days)</p>
+    </div>
+
+    <!-- Statistics & Controls -->
+    <div class="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div class="bg-white rounded-lg border border-gray-200 p-4 text-center">
+            <div class="text-2xl font-bold text-blue-600">{{ article_count }}</div>
+            <div class="text-xs text-gray-600">Cached Articles</div>
+        </div>
+        <div class="bg-white rounded-lg border border-gray-200 p-4 text-center">
+            <div class="text-sm font-medium text-gray-900">
+                {% if last_update %}
+                    {{ last_update }}
+                {% else %}
+                    Never
+                {% endif %}
+            </div>
+            <div class="text-xs text-gray-600">Last Updated</div>
+        </div>
+        <div class="bg-white rounded-lg border border-gray-200 p-4 text-center">
+            <div class="text-sm font-medium text-gray-900">{{ articles_by_source|length }}</div>
+            <div class="text-xs text-gray-600">News Sources</div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="mb-6 flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+        <form method="post" action="/habitstack/sports/refresh" class="inline">
+            <button type="submit" 
+                    class="inline-flex items-center rounded-md bg-blue-600 px-3 py-2 sm:px-4 sm:py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 transition-colors">
+                <svg class="-ml-0.5 mr-1.5 h-4 w-4 sm:h-5 sm:w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
+                </svg>
+                <span class="hidden sm:inline">Refresh News</span>
+                <span class="sm:hidden">Refresh</span>
+            </button>
+        </form>
+        
+        <form method="post" action="/habitstack/sports/clear" class="inline" 
+              onsubmit="return confirm('Are you sure you want to clear all cached articles?')">
+            <button type="submit" 
+                    class="inline-flex items-center rounded-md bg-gray-600 px-3 py-2 sm:px-4 sm:py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-500 transition-colors">
+                <svg class="-ml-0.5 mr-1.5 h-4 w-4 sm:h-5 sm:w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                </svg>
+                <span class="hidden sm:inline">Clear Cache</span>
+                <span class="sm:hidden">Clear</span>
+            </button>
+        </form>
+    </div>
+
+    <!-- News Articles by Source -->
+    {% if articles_by_source %}
+        {% for source, articles in articles_by_source.items() %}
+            {% if articles %}
+            <div class="mb-8 bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
+                <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 bg-blue-50">
+                    <h3 class="text-base sm:text-lg font-medium text-blue-900 flex items-center">
+                        ⚽ {{ source }} ({{ articles|length }})
+                    </h3>
+                </div>
+                <div class="divide-y divide-gray-200">
+                    {% for article in articles %}
+                    <div class="px-4 sm:px-6 py-4 hover:bg-gray-50 transition-colors">
+                        <div class="flex flex-col space-y-3">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex flex-col space-y-2">
+                                    <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between space-y-2 sm:space-y-0">
+                                        <div class="flex-1 min-w-0">
+                                            <h4 class="text-base sm:text-lg font-medium text-gray-900 leading-6">
+                                                {% if article.link %}
+                                                    <a href="{{ article.link }}" target="_blank" rel="noopener noreferrer" 
+                                                       class="hover:text-blue-600 transition-colors">
+                                                        {{ article.title }}
+                                                    </a>
+                                                {% else %}
+                                                    {{ article.title }}
+                                                {% endif %}
+                                            </h4>
+                                        </div>
+                                        <div class="flex-shrink-0">
+                                            <span class="inline-flex items-center rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800">
+                                                {{ article.source }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    
+                                    {% if article.summary and article.summary != article.title %}
+                                    <p class="text-sm text-gray-600 line-clamp-3">{{ article.summary }}</p>
+                                    {% endif %}
+                                    
+                                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
+                                        <div class="flex items-center text-xs text-gray-500">
+                                            <svg class="mr-1.5 h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+                                            </svg>
+                                            <span>{{ article.published }}</span>
+                                        </div>
+                                        
+                                        {% if article.link %}
+                                        <div class="flex items-center">
+                                            <a href="{{ article.link }}" target="_blank" rel="noopener noreferrer" 
+                                               class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-500">
+                                                Read full article
+                                                <svg class="ml-1 h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                                </svg>
+                                            </a>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
+    <!-- Empty State -->
+    {% if not articles_by_source or not (articles_by_source.values() | selectattr('length') | list) %}
+    <div class="text-center py-12">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">No sports news cached</h3>
+        <p class="mt-1 text-sm text-gray-500">Click "Refresh News" to fetch the latest football transfer news.</p>
+        <div class="mt-6">
+            <form method="post" action="/habitstack/sports/refresh" class="inline">
+                <button type="submit" 
+                        class="inline-flex items-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500">
+                    <svg class="-ml-0.5 mr-1.5 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
+                    </svg>
+                    Fetch Latest News
+                </button>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+</main>
+{% endblock %}

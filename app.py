@@ -17,6 +17,7 @@ from todos import todos_bp
 from reading import reading_bp
 from birthdays import birthdays_bp
 from watchlist import watchlist_bp
+from sports import sports_bp
 from settings import settings_bp
 
 # Flask app setup
@@ -31,6 +32,7 @@ app.register_blueprint(todos_bp)
 app.register_blueprint(reading_bp)
 app.register_blueprint(birthdays_bp)
 app.register_blueprint(watchlist_bp)
+app.register_blueprint(sports_bp)
 app.register_blueprint(settings_bp)
 
 # Create main blueprint for dashboard and landing

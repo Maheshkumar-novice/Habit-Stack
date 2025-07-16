@@ -9,6 +9,7 @@ This package provides all the data models:
 - Reading: Book and reading list management
 - Birthday: Birthday reminder system
 - Watchlist: Movies and series tracking
+- SportsNews: Sports news caching and management
 """
 
 from .user import User
@@ -18,6 +19,7 @@ from .todo import Todo
 from .reading import Reading
 from .birthday import Birthday
 from .watchlist import Watchlist
+from .sports import SportsNews
 from .data_manager import DataExporter, DataImporter
 
-__all__ = ['User', 'Habit', 'DailyNote', 'Todo', 'Reading', 'Birthday', 'Watchlist', 'DataExporter', 'DataImporter']
+__all__ = ['User', 'Habit', 'DailyNote', 'Todo', 'Reading', 'Birthday', 'Watchlist', 'SportsNews', 'DataExporter', 'DataImporter']
