@@ -1,0 +1,97 @@
+<!-- Data Import Component -->
+<div class="bg-white shadow-sm rounded-lg border border-gray-200">
+    <div class="px-4 sm:px-6 py-4 border-b border-gray-200">
+        <h3 class="text-lg font-medium text-gray-900">📥 Data Import</h3>
+        <p class="mt-1 text-sm text-gray-600">Upload and restore your data</p>
+    </div>
+    
+    <div class="p-4 sm:p-6">
+        <form method="post" action="/habitstack/import-modules" enctype="multipart/form-data" class="space-y-4">
+            <!-- File Upload -->
+            <div>
+                <label for="backup_file" class="block text-sm font-medium text-gray-700 mb-2">
+                    Select JSON backup file
+                </label>
+                <input type="file" 
+                       name="backup_file" 
+                       id="backup_file" 
+                       accept=".json,application/json"
+                       required
+                       class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+            </div>
+            
+            <!-- Import Strategy -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Import Strategy</label>
+                <div class="space-y-2">
+                    <label class="flex items-center">
+                        <input type="radio" name="import_strategy" value="replace" checked class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300">
+                        <span class="ml-2 text-sm text-gray-700">Replace existing data</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="radio" name="import_strategy" value="merge" class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300">
+                        <span class="ml-2 text-sm text-gray-700">Merge with existing</span>
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Modules to Import -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Modules to Import</label>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <label class="flex items-center text-sm">
+                        <input type="checkbox" name="import_modules" value="habits" checked class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded mr-2">
+                        ✓ Habits
+                    </label>
+                    <label class="flex items-center text-sm">
+                        <input type="checkbox" name="import_modules" value="daily_notes" checked class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded mr-2">
+                        📝 Notes
+                    </label>
+                    <label class="flex items-center text-sm">
+                        <input type="checkbox" name="import_modules" value="todos" checked class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded mr-2">
+                        ✅ Todos
+                    </label>
+                    <label class="flex items-center text-sm">
+                        <input type="checkbox" name="import_modules" value="reading" checked class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded mr-2">
+                        📚 Reading
+                    </label>
+                    <label class="flex items-center text-sm">
+                        <input type="checkbox" name="import_modules" value="birthdays" checked class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded mr-2">
+                        🎂 Birthdays
+                    </label>
+                    <label class="flex items-center text-sm">
+                        <input type="checkbox" name="import_modules" value="watchlist" checked class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded mr-2">
+                        🎬 Watchlist
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Warning -->
+            <div class="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                <div class="flex">
+                    <svg class="h-5 w-5 text-amber-400 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                    </svg>
+                    <div class="ml-3">
+                        <p class="text-sm text-amber-700">
+                            <strong>Warning:</strong> Replace strategy will permanently delete existing data for selected modules.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Import Actions -->
+            <div class="flex flex-col sm:flex-row gap-3">
+                <button type="button" onclick="analyzeImportFile()" 
+                        class="flex-1 inline-flex items-center justify-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+                    🔍 Analyze File
+                </button>
+                
+                <button type="submit" 
+                        class="flex-1 inline-flex items-center justify-center px-4 py-2 bg-orange-600 text-white text-sm font-medium rounded-lg hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors">
+                    📥 Import Selected
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

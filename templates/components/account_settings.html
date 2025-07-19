@@ -1,0 +1,116 @@
+<!-- Account Settings Component -->
+<div class="bg-white shadow-sm rounded-lg border border-gray-200">
+    <div class="px-4 sm:px-6 py-4 border-b border-gray-200">
+        <h3 class="text-lg font-medium text-gray-900">👤 Account Settings</h3>
+        <p class="mt-1 text-sm text-gray-600">Manage your account and security</p>
+    </div>
+    
+    <div class="p-4 sm:p-6 space-y-6">
+        <!-- Username Display -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div>
+                <h4 class="text-base font-medium text-gray-900">Username</h4>
+                <p class="text-sm text-gray-600">{{ user.username }}</p>
+            </div>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 self-start sm:self-center">
+                Active
+            </span>
+        </div>
+
+        <!-- Password Update -->
+        <div class="border-t border-gray-200 pt-6">
+            <h4 class="text-base font-medium text-gray-900 mb-4">🔐 Update Password</h4>
+            <form method="post" action="/habitstack/update-password" class="space-y-4">
+                <div class="w-full">
+                    <label for="current_password" class="block text-sm font-medium text-gray-700 mb-1">
+                        Current Password
+                    </label>
+                    <input type="password" 
+                           name="current_password" 
+                           id="current_password" 
+                           required
+                           class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm">
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div>
+                        <label for="new_password" class="block text-sm font-medium text-gray-700 mb-1">
+                            New Password
+                        </label>
+                        <input type="password" 
+                               name="new_password" 
+                               id="new_password" 
+                               required
+                               class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm">
+                    </div>
+
+                    <div>
+                        <label for="confirm_password" class="block text-sm font-medium text-gray-700 mb-1">
+                            Confirm Password
+                        </label>
+                        <input type="password" 
+                               name="confirm_password" 
+                               id="confirm_password" 
+                               required
+                               class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm">
+                    </div>
+                </div>
+
+                <div class="text-xs text-gray-500">
+                    <p>Password requirements: 8+ characters, uppercase, lowercase, number</p>
+                </div>
+
+                <div class="flex justify-start">
+                    <button type="submit" 
+                            class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                        Update Password
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Delete Account -->
+        <div class="border-t border-gray-200 pt-6">
+            <h4 class="text-base font-medium text-gray-900 mb-4">⚠️ Danger Zone</h4>
+            
+            <div class="p-4 bg-red-50 border border-red-200 rounded-lg mb-4">
+                <p class="text-sm text-red-700">
+                    <strong>Warning:</strong> Account deletion is permanent. Your account will be deactivated and all data will be inaccessible.
+                    Export your data first if needed.
+                </p>
+            </div>
+
+            <form method="post" action="/habitstack/delete-account" class="space-y-4" onsubmit="return confirm('Are you absolutely sure? This cannot be undone.')">
+                <div class="w-full">
+                    <label for="delete_password" class="block text-sm font-medium text-gray-700 mb-1">
+                        Enter password to confirm
+                    </label>
+                    <input type="password" 
+                           name="password" 
+                           id="delete_password" 
+                           required
+                           class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-red-500 focus:border-red-500 text-sm">
+                </div>
+
+                <div class="w-full">
+                    <label for="confirm_delete" class="block text-sm font-medium text-gray-700 mb-1">
+                        Type "DELETE" to confirm
+                    </label>
+                    <input type="text" 
+                           name="confirm_delete" 
+                           id="confirm_delete" 
+                           required
+                           placeholder="Type DELETE here"
+                           class="block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-red-500 focus:border-red-500 text-sm">
+                </div>
+
+                <div class="flex justify-start">
+                    <button type="submit" 
+                            class="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">
+                        Delete Account
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
