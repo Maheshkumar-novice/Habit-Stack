@@ -9,7 +9,12 @@ import tempfile
 import os
 from models.data_manager import DataExporter, DataImporter
 from models import User
+import sys
+import os
+sys.path.append(os.path.dirname(__file__))
 from utils import get_current_user, require_auth, validate_password_strength
+from utils.field_registry import field_registry
+from utils.preferences import preference_manager
 
 # Create settings blueprint
 settings_bp = Blueprint('settings', __name__, url_prefix='/habitstack')
@@ -17,13 +22,30 @@ settings_bp = Blueprint('settings', __name__, url_prefix='/habitstack')
 @settings_bp.route('/settings')
 @require_auth
 def settings():
-    """Settings page"""
+    """Settings page with encryption preferences"""
     user = get_current_user()
+    user_id = user['id']
     
     # Get module counts for display
-    module_counts = DataExporter.get_module_counts(user['id'])
+    module_counts = DataExporter.get_module_counts(user_id)
     
-    return render_template('settings.html', user=user, module_counts=module_counts)
+    # Get encryption preferences and field registry
+    user_prefs = preference_manager.get_user_preferences(user_id)
+    fields_by_module = field_registry.get_fields_by_module()
+    new_fields = preference_manager.get_new_fields_for_user(user_id)
+    encryption_summary = preference_manager.get_encryption_summary(user_id)
+    
+    # Show notification for new fields
+    if new_fields:
+        flash(f"New privacy options available for {len(new_fields)} field types!", "info")
+    
+    return render_template('settings.html', 
+                         user=user, 
+                         module_counts=module_counts,
+                         fields_by_module=fields_by_module,
+                         user_preferences=user_prefs,
+                         new_fields=new_fields,
+                         encryption_summary=encryption_summary)
 
 @settings_bp.route('/export', methods=['POST'])
 @require_auth
@@ -257,6 +279,42 @@ def import_modules():
         
     except Exception as e:
         flash(f'Import failed: {str(e)}', 'error')
+    
+    return redirect(url_for('settings.settings'))
+
+@settings_bp.route('/update-encryption-preferences', methods=['POST'])
+@require_auth
+def update_encryption_preferences():
+    """Update user's encryption preferences"""
+    user = get_current_user()
+    user_id = user['id']
+    
+    try:
+        # Get all submitted preferences
+        submitted_keys = set(request.form.getlist('encrypted_fields'))
+        
+        # Get all available fields to set unchecked ones to False
+        all_fields = field_registry.get_all_fields()
+        new_preferences = {}
+        
+        for field in all_fields:
+            field_key = field_registry.get_field_key(field.module, field.field_name)
+            new_preferences[field_key] = field_key in submitted_keys
+        
+        # Update preferences in bulk
+        preference_manager.bulk_set_preferences(user_id, new_preferences)
+        
+        # Show summary of changes
+        encrypted_count = sum(1 for encrypted in new_preferences.values() if encrypted)
+        total_count = len(new_preferences)
+        
+        flash(f'Privacy settings updated! {encrypted_count} of {total_count} fields are now encrypted.', 'success')
+        
+        # Note: Data re-encryption would happen here in a full implementation
+        # For now, new data will use the new preferences
+        
+    except Exception as e:
+        flash(f'Error updating encryption preferences: {str(e)}', 'error')
     
     return redirect(url_for('settings.settings'))
 

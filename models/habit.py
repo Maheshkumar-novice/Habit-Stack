@@ -5,25 +5,46 @@ Habit model for habit management and tracking
 from datetime import datetime, date, timedelta
 from typing import Optional, List, Dict
 from database import get_db
+from models.base_encrypted import EncryptedModelMixin
 
 
-class Habit:
+class Habit(EncryptedModelMixin):
     """Habit model for habit management and tracking"""
     
-    @staticmethod
-    def create(user_id: int, name: str, description: str = None, points: int = 1) -> int:
-        """Create a new habit for user"""
+    # Field mapping for encryption
+    ENCRYPTED_FIELDS = {
+        'name': 'name',
+        'description': 'description'
+    }
+    
+    @classmethod
+    def get_encrypted_fields_for_module(cls, module: str) -> dict:
+        """Get the field mapping for habits module"""
+        return cls.ENCRYPTED_FIELDS
+    
+    @classmethod
+    def create(cls, user_id: int, name: str, description: str = None, points: int = 1) -> int:
+        """Create a new habit for user with encryption"""
+        instance = cls()
+        
+        # Prepare data for storage with encryption
+        habit_data = {'name': name, 'description': description or ''}
+        encrypted_data = instance._process_fields_for_storage(
+            habit_data, 'habits', cls.ENCRYPTED_FIELDS
+        )
+        
         with get_db() as conn:
             cursor = conn.execute(
                 "INSERT INTO habits (user_id, name, description, points) VALUES (?, ?, ?, ?)",
-                (user_id, name, description or None, points)
+                (user_id, encrypted_data['name'], encrypted_data['description'] or None, points)
             )
             conn.commit()
             return cursor.lastrowid
     
-    @staticmethod
-    def get_user_habits(user_id: int) -> List[Dict]:
-        """Get all habits for user with today's completion status"""
+    @classmethod
+    def get_user_habits(cls, user_id: int) -> List[Dict]:
+        """Get all habits for user with today's completion status and decryption"""
+        instance = cls()
         today = date.today().isoformat()
         
         with get_db() as conn:
@@ -36,12 +57,21 @@ class Habit:
                 ORDER BY h.created_at
             """, (today, user_id)).fetchall()
             
-            # Calculate streaks and return as list of dicts
+            # Calculate streaks and decrypt fields
             habits_with_streaks = []
             for habit in habits:
-                streak = Habit.calculate_streak(habit['id'])
                 habit_dict = dict(habit)
+                
+                # Decrypt fields for display
+                decrypted_data = instance._process_fields_for_display(
+                    habit_dict, 'habits', cls.ENCRYPTED_FIELDS
+                )
+                habit_dict.update(decrypted_data)
+                
+                # Calculate streak
+                streak = cls.calculate_streak(habit['id'])
                 habit_dict['current_streak'] = streak
+                
                 habits_with_streaks.append(habit_dict)
             
             return habits_with_streaks

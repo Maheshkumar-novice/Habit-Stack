@@ -40,6 +40,115 @@
         {% endif %}
     {% endwith %}
 
+    <!-- Encryption Settings Section -->
+    {% if fields_by_module %}
+    <div class="bg-white shadow-sm rounded-lg border border-gray-200 mb-8">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-lg font-medium text-gray-900 flex items-center">
+                        🔒 Privacy & Encryption
+                    </div>
+                    <p class="mt-1 text-sm text-gray-600">Choose which personal information to encrypt</p>
+                </div>
+                {% if encryption_summary %}
+                <div class="text-right">
+                    <div class="text-sm font-medium text-gray-900">
+                        {{ encryption_summary.encrypted_fields }}/{{ encryption_summary.total_fields }} fields encrypted
+                    </div>
+                    <div class="text-xs text-gray-500">
+                        {% if encryption_summary.privacy_level == 'high' %}
+                            🔒 High Privacy
+                        {% elif encryption_summary.privacy_level == 'medium' %}
+                            🛡️ Medium Privacy
+                        {% elif encryption_summary.privacy_level == 'low' %}
+                            🔓 Low Privacy
+                        {% else %}
+                            📄 No Encryption
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="p-4 sm:p-6">
+            <div class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-blue-700">
+                            <strong>Privacy Protection:</strong> Encrypted fields cannot be read by anyone, including the server administrator. 
+                            Only you can decrypt your data using your login password.
+                        </p>
+                        <p class="text-xs text-blue-600 mt-1">
+                            ⚠️ Encrypted fields cannot be searched. Choose wisely based on your privacy needs.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <form method="POST" action="/habitstack/update-encryption-preferences">
+                {% for module_name, fields in fields_by_module.items() %}
+                <div class="module-group mb-6 p-4 border border-gray-200 rounded-lg">
+                    <h4 class="font-medium text-gray-900 mb-3 flex items-center">
+                        {% if module_name == 'habits' %}📋 Habits
+                        {% elif module_name == 'notes' %}📝 Daily Notes
+                        {% elif module_name == 'todos' %}✅ Todos
+                        {% elif module_name == 'reading' %}📚 Reading List
+                        {% elif module_name == 'birthdays' %}🎂 Birthdays
+                        {% elif module_name == 'watchlist' %}🎬 Watchlist
+                        {% else %}📄 {{ module_name.title() }}
+                        {% endif %}
+                        
+                        {% if module_name in [field.module for field in new_fields] %}
+                        <span class="ml-2 px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">New!</span>
+                        {% endif %}
+                    </h4>
+                    
+                    <div class="field-options space-y-3">
+                        {% for field in fields %}
+                        {% set field_key = field.module + '_' + field.field_name %}
+                        <label class="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="checkbox" 
+                                   name="encrypted_fields" 
+                                   value="{{ field_key }}"
+                                   class="mt-1 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                   {% if user_preferences.get(field_key) %}checked{% endif %}>
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-2">
+                                    <span class="font-medium text-gray-900">{{ field.display_name }}</span>
+                                    {% if field.recommended %}
+                                    <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Recommended</span>
+                                    {% endif %}
+                                </div>
+                                <p class="text-sm text-gray-500 mt-1">{{ field.description }}</p>
+                            </div>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+                
+                <div class="flex items-center justify-between pt-4 border-t border-gray-200">
+                    <div class="text-sm text-gray-500 space-y-1">
+                        <p>💡 <strong>Tip:</strong> Encrypt personal content, keep organizational fields plain for searchability.</p>
+                        <p>🔑 Your encryption key is derived from your login password - keep it secure!</p>
+                    </div>
+                    <button type="submit" 
+                            class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                        Update Privacy Settings
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
     <!-- Data Management Section -->
     <div class="bg-white shadow-sm rounded-lg border border-gray-200">
         <div class="px-6 py-4 border-b border-gray-200">

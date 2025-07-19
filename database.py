@@ -272,6 +272,41 @@ def init_db():
             # Column already exists, ignore
             pass
         
+        # Add encryption_salt column to existing users table if it doesn't exist
+        try:
+            conn.execute("ALTER TABLE users ADD COLUMN encryption_salt BLOB")
+            conn.commit()
+        except sqlite3.OperationalError:
+            # Column already exists, ignore
+            pass
+        
+        # Create encryptable_fields table for dynamic field registry
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS encryptable_fields (
+                id INTEGER PRIMARY KEY,
+                module_name TEXT NOT NULL,
+                field_name TEXT NOT NULL,
+                field_display_name TEXT NOT NULL,
+                field_description TEXT,
+                recommended_encrypt BOOLEAN DEFAULT 1,
+                added_version TEXT DEFAULT '1.0',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(module_name, field_name)
+            );
+        """)
+        
+        # Create user_encryption_preferences table
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS user_encryption_preferences (
+                user_id INTEGER NOT NULL,
+                field_name TEXT NOT NULL,
+                encrypted BOOLEAN DEFAULT 0,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (user_id, field_name),
+                FOREIGN KEY (user_id) REFERENCES users (id)
+            );
+        """)
+        
         # Create indexes for better performance
         conn.executescript("""
             CREATE INDEX IF NOT EXISTS idx_habits_user_id ON habits(user_id);
@@ -295,6 +330,8 @@ def init_db():
             CREATE INDEX IF NOT EXISTS idx_reading_user_status ON reading_list(user_id, status, deleted_at);
             CREATE INDEX IF NOT EXISTS idx_sports_news_created_at ON sports_news(created_at);
             CREATE INDEX IF NOT EXISTS idx_sports_news_source ON sports_news(source);
+            CREATE INDEX IF NOT EXISTS idx_encryption_prefs_user ON user_encryption_preferences(user_id);
+            CREATE INDEX IF NOT EXISTS idx_encryptable_fields_module ON encryptable_fields(module_name);
         """)
         
         conn.commit()

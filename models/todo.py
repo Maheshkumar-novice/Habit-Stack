@@ -5,20 +5,41 @@ Todo model for task management and tracking
 from datetime import datetime, date
 from typing import Optional, List, Dict
 from database import get_db
+from models.base_encrypted import EncryptedModelMixin
 
 
-class Todo:
+class Todo(EncryptedModelMixin):
     """Todo model for task management and tracking"""
     
-    @staticmethod
-    def create(user_id: int, title: str, description: str = None, priority: str = 'medium', 
+    # Field mapping for encryption
+    ENCRYPTED_FIELDS = {
+        'title': 'title',
+        'description': 'description',
+        'category': 'category'
+    }
+    
+    @classmethod
+    def create(cls, user_id: int, title: str, description: str = None, priority: str = 'medium', 
                due_date: str = None, category: str = None) -> int:
-        """Create a new todo for user"""
+        """Create a new todo for user with encryption"""
+        instance = cls()
+        
+        # Prepare data for storage with encryption
+        todo_data = {
+            'title': title,
+            'description': description or '',
+            'category': category or ''
+        }
+        encrypted_data = instance._process_fields_for_storage(
+            todo_data, 'todos', cls.ENCRYPTED_FIELDS
+        )
+        
         with get_db() as conn:
             cursor = conn.execute(
                 """INSERT INTO todos (user_id, title, description, priority, due_date, category) 
                    VALUES (?, ?, ?, ?, ?, ?)""",
-                (user_id, title, description, priority, due_date, category)
+                (user_id, encrypted_data['title'], encrypted_data['description'] or None, 
+                 priority, due_date, encrypted_data['category'] or None)
             )
             conn.commit()
             return cursor.lastrowid
