@@ -4,36 +4,63 @@ Daily note model for user journaling
 
 from typing import Optional, List, Dict
 from database import get_db
+from models.base_encrypted import EncryptedModelMixin
 
 
-class DailyNote:
+class DailyNote(EncryptedModelMixin):
     """Daily note model for user journaling"""
     
-    @staticmethod
-    def get_note(user_id: int, note_date: str) -> Optional[Dict]:
-        """Get note for a specific date"""
+    # Field mapping for encryption
+    ENCRYPTED_FIELDS = {
+        'content': 'content'
+    }
+    
+    @classmethod
+    def get_note(cls, user_id: int, note_date: str) -> Optional[Dict]:
+        """Get note for a specific date with decryption"""
+        instance = cls()
+        
         with get_db() as conn:
             note = conn.execute(
                 "SELECT * FROM daily_notes WHERE user_id = ? AND note_date = ?",
                 (user_id, note_date)
             ).fetchone()
-            return dict(note) if note else None
+            
+            if not note:
+                return None
+            
+            note_dict = dict(note)
+            # Decrypt fields for display
+            decrypted_data = instance._process_fields_for_display(
+                note_dict, 'notes', cls.ENCRYPTED_FIELDS
+            )
+            note_dict.update(decrypted_data)
+            
+            return note_dict
     
-    @staticmethod
-    def save_note(user_id: int, note_date: str, content: str) -> bool:
-        """Save or update note for a specific date"""
+    @classmethod
+    def save_note(cls, user_id: int, note_date: str, content: str) -> bool:
+        """Save or update note for a specific date with encryption"""
+        instance = cls()
+        
+        # Prepare data for storage with encryption
+        note_data = {'content': content.strip() if content else ''}
+        encrypted_data = instance._process_fields_for_storage(
+            note_data, 'notes', cls.ENCRYPTED_FIELDS
+        )
+        
         with get_db() as conn:
             # Try to update existing note first
             cursor = conn.execute(
                 "UPDATE daily_notes SET content = ?, updated_at = CURRENT_TIMESTAMP WHERE user_id = ? AND note_date = ?",
-                (content.strip() if content else None, user_id, note_date)
+                (encrypted_data['content'] or None, user_id, note_date)
             )
             
             # If no rows were updated, insert new note
             if cursor.rowcount == 0:
                 conn.execute(
                     "INSERT INTO daily_notes (user_id, note_date, content) VALUES (?, ?, ?)",
-                    (user_id, note_date, content.strip() if content else None)
+                    (user_id, note_date, encrypted_data['content'] or None)
                 )
             
             conn.commit()

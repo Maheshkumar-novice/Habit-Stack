@@ -15,6 +15,7 @@ sys.path.append(os.path.dirname(__file__))
 from utils import get_current_user, require_auth, validate_password_strength
 from utils.field_registry import field_registry
 from utils.preferences import preference_manager
+from utils.migration import data_migrator
 
 # Create settings blueprint
 settings_bp = Blueprint('settings', __name__, url_prefix='/habitstack')
@@ -48,14 +49,17 @@ def settings():
                          encryption_summary=encryption_summary)
 
 @settings_bp.route('/export', methods=['POST'])
-@require_auth
+@require_auth  
 def export_data():
     """Export all user data as JSON file"""
     user = get_current_user()
     
     try:
-        # Export all user data
-        data = DataExporter.export_full(user['id'], user['username'])
+        # Get export format choice (default to readable)
+        export_format = request.form.get('export_format', 'readable')
+        
+        # Export user data with encryption choice
+        data = DataExporter.export_with_encryption_choice(user['id'], user['username'], export_format)
         
         # Create temporary file
         with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as temp_file:
@@ -310,8 +314,15 @@ def update_encryption_preferences():
         
         flash(f'Privacy settings updated! {encrypted_count} of {total_count} fields are now encrypted.', 'success')
         
-        # Note: Data re-encryption would happen here in a full implementation
-        # For now, new data will use the new preferences
+        # Trigger data re-encryption for existing data
+        try:
+            migration_result = data_migrator.schedule_re_encryption(user_id)
+            if migration_result['success']:
+                flash(f'Successfully updated {migration_result["records_updated"]} existing records with new encryption settings.', 'info')
+            else:
+                flash('Encryption preferences saved, but some existing data may need manual migration.', 'warning')
+        except Exception as e:
+            flash('Encryption preferences saved, but existing data migration encountered issues.', 'warning')
         
     except Exception as e:
         flash(f'Error updating encryption preferences: {str(e)}', 'error')
@@ -339,8 +350,8 @@ def analyze_import():
         except json.JSONDecodeError as e:
             return jsonify({'success': False, 'error': f'Invalid JSON file: {str(e)}'})
         
-        # Analyze the data
-        analysis = DataImporter.analyze_import_data(data)
+        # Analyze the data for encryption and content
+        analysis = DataImporter.analyze_import_file(data)
         
         return jsonify({'success': True, 'analysis': analysis})
         

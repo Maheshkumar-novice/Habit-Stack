@@ -11,6 +11,10 @@ from .todo import Todo
 from .reading import Reading
 from .birthday import Birthday
 from .watchlist import Watchlist
+from utils.encryption import encryption_manager
+from utils.preferences import preference_manager
+from utils.field_registry import field_registry
+from flask import session
 
 
 class DataExporter:
@@ -33,6 +37,70 @@ class DataExporter:
             "reading": DataExporter._export_reading(user_id),
             "birthdays": DataExporter._export_birthdays(user_id),
             "watchlist": DataExporter._export_watchlist(user_id)
+        }
+        return export_data
+    
+    @staticmethod
+    def export_with_encryption_choice(user_id: int, username: str, format_choice: str = 'readable') -> Dict[str, Any]:
+        """Export data with encryption format choice"""
+        if format_choice == 'readable':
+            return DataExporter._export_decrypted(user_id, username)
+        elif format_choice == 'encrypted':
+            return DataExporter._export_raw_encrypted(user_id, username)
+        else:  # both
+            return {
+                'readable_data': DataExporter._export_decrypted(user_id, username),
+                'encrypted_data': DataExporter._export_raw_encrypted(user_id, username),
+                'encryption_preferences': preference_manager.get_user_preferences(user_id),
+                'export_format': 'mixed',
+                'export_date': datetime.now().isoformat()
+            }
+    
+    @staticmethod
+    def _export_decrypted(user_id: int, username: str) -> Dict[str, Any]:
+        """Export all data in readable format (decrypted)"""
+        encryption_key = session.get('encryption_key')
+        user_prefs = preference_manager.get_user_preferences(user_id)
+        
+        export_data = {
+            "export_info": {
+                "version": "1.0",
+                "timestamp": datetime.now().isoformat(),
+                "username": username,
+                "app": "HabitStack",
+                "format": "readable",
+                "encryption_enabled": bool(encryption_key)
+            },
+            "habits": DataExporter._export_habits_decrypted(user_id, encryption_key),
+            "habit_completions": DataExporter._export_habit_completions(user_id),
+            "daily_notes": DataExporter._export_notes_decrypted(user_id, encryption_key),
+            "todos": DataExporter._export_todos_decrypted(user_id, encryption_key),
+            "reading": DataExporter._export_reading_decrypted(user_id, encryption_key),
+            "birthdays": DataExporter._export_birthdays_decrypted(user_id, encryption_key),
+            "watchlist": DataExporter._export_watchlist_decrypted(user_id, encryption_key),
+            "encryption_preferences": user_prefs
+        }
+        return export_data
+    
+    @staticmethod
+    def _export_raw_encrypted(user_id: int, username: str) -> Dict[str, Any]:
+        """Export data preserving encryption state"""
+        export_data = {
+            "export_info": {
+                "version": "1.0",
+                "timestamp": datetime.now().isoformat(),
+                "username": username,
+                "app": "HabitStack",
+                "format": "encrypted"
+            },
+            "habits": DataExporter._export_habits(user_id),
+            "habit_completions": DataExporter._export_habit_completions(user_id),
+            "daily_notes": DataExporter._export_notes(user_id),
+            "todos": DataExporter._export_todos(user_id),
+            "reading": DataExporter._export_reading(user_id),
+            "birthdays": DataExporter._export_birthdays(user_id),
+            "watchlist": DataExporter._export_watchlist(user_id),
+            "encryption_preferences": preference_manager.get_user_preferences(user_id)
         }
         return export_data
     
@@ -200,6 +268,141 @@ class DataExporter:
             """, (user_id,)).fetchall()
             
             return [dict(item) for item in watchlist]
+    
+    # Decrypted export methods for encryption-aware exports
+    @staticmethod
+    def _export_habits_decrypted(user_id: int, encryption_key: bytes) -> List[Dict]:
+        """Export habits with decryption"""
+        with get_db() as conn:
+            habits = conn.execute("""
+                SELECT name, description, points, created_at
+                FROM habits 
+                WHERE user_id = ?
+                ORDER BY created_at
+            """, (user_id,)).fetchall()
+            
+            result = []
+            for habit in habits:
+                habit_dict = dict(habit)
+                # Decrypt encrypted fields
+                if encryption_key:
+                    habit_dict['name'] = encryption_manager.smart_decrypt(habit_dict['name'], encryption_key)
+                    habit_dict['description'] = encryption_manager.smart_decrypt(habit_dict['description'], encryption_key)
+                result.append(habit_dict)
+            
+            return result
+    
+    @staticmethod
+    def _export_notes_decrypted(user_id: int, encryption_key: bytes) -> List[Dict]:
+        """Export notes with decryption"""
+        with get_db() as conn:
+            notes = conn.execute("""
+                SELECT note_date, content, created_at, updated_at
+                FROM daily_notes 
+                WHERE user_id = ?
+                ORDER BY note_date
+            """, (user_id,)).fetchall()
+            
+            result = []
+            for note in notes:
+                note_dict = dict(note)
+                # Decrypt encrypted fields
+                if encryption_key:
+                    note_dict['content'] = encryption_manager.smart_decrypt(note_dict['content'], encryption_key)
+                result.append(note_dict)
+            
+            return result
+    
+    @staticmethod
+    def _export_todos_decrypted(user_id: int, encryption_key: bytes) -> List[Dict]:
+        """Export todos with decryption"""
+        with get_db() as conn:
+            todos = conn.execute("""
+                SELECT title, description, priority, due_date, category, 
+                       completed, completed_at, created_at, updated_at
+                FROM todos 
+                WHERE user_id = ? AND deleted_at IS NULL
+                ORDER BY created_at
+            """, (user_id,)).fetchall()
+            
+            result = []
+            for todo in todos:
+                todo_dict = dict(todo)
+                # Decrypt encrypted fields
+                if encryption_key:
+                    todo_dict['title'] = encryption_manager.smart_decrypt(todo_dict['title'], encryption_key)
+                    todo_dict['description'] = encryption_manager.smart_decrypt(todo_dict['description'], encryption_key)
+                    todo_dict['category'] = encryption_manager.smart_decrypt(todo_dict['category'], encryption_key)
+                result.append(todo_dict)
+            
+            return result
+    
+    @staticmethod
+    def _export_reading_decrypted(user_id: int, encryption_key: bytes) -> List[Dict]:
+        """Export reading list with decryption"""
+        with get_db() as conn:
+            books = conn.execute("""
+                SELECT title, author, total_pages, current_page, status, rating, notes,
+                       date_added, date_completed, created_at, updated_at
+                FROM reading_list 
+                WHERE user_id = ? AND deleted_at IS NULL
+                ORDER BY created_at
+            """, (user_id,)).fetchall()
+            
+            result = []
+            for book in books:
+                book_dict = dict(book)
+                # Decrypt encrypted fields
+                if encryption_key:
+                    book_dict['notes'] = encryption_manager.smart_decrypt(book_dict['notes'], encryption_key)
+                result.append(book_dict)
+            
+            return result
+    
+    @staticmethod
+    def _export_birthdays_decrypted(user_id: int, encryption_key: bytes) -> List[Dict]:
+        """Export birthdays with decryption"""
+        with get_db() as conn:
+            birthdays = conn.execute("""
+                SELECT name, birth_date, relationship_type, notes, created_at
+                FROM birthdays 
+                WHERE user_id = ?
+                ORDER BY substr(birth_date, 6)
+            """, (user_id,)).fetchall()
+            
+            result = []
+            for birthday in birthdays:
+                birthday_dict = dict(birthday)
+                # Decrypt encrypted fields
+                if encryption_key:
+                    birthday_dict['name'] = encryption_manager.smart_decrypt(birthday_dict['name'], encryption_key)
+                    birthday_dict['notes'] = encryption_manager.smart_decrypt(birthday_dict['notes'], encryption_key)
+                result.append(birthday_dict)
+            
+            return result
+    
+    @staticmethod
+    def _export_watchlist_decrypted(user_id: int, encryption_key: bytes) -> List[Dict]:
+        """Export watchlist with decryption"""
+        with get_db() as conn:
+            items = conn.execute("""
+                SELECT title, type, genre, status, priority, rating, notes,
+                       current_episode, total_episodes, release_year, 
+                       date_added, date_completed, created_at
+                FROM watchlist 
+                WHERE user_id = ?
+                ORDER BY date_added DESC
+            """, (user_id,)).fetchall()
+            
+            result = []
+            for item in items:
+                item_dict = dict(item)
+                # Decrypt encrypted fields
+                if encryption_key:
+                    item_dict['notes'] = encryption_manager.smart_decrypt(item_dict['notes'], encryption_key)
+                result.append(item_dict)
+            
+            return result
 
 
 class DataImporter:
@@ -402,6 +605,63 @@ class DataImporter:
             data['reading'] = []
         
         return {"valid": True}
+    
+    @staticmethod
+    def analyze_import_file(data: Dict[str, Any]) -> Dict[str, Any]:
+        """Analyze import file for encryption status and content"""
+        analysis = {
+            'has_encrypted_data': False,
+            'encryption_preferences_included': False,
+            'format_detected': 'unknown',
+            'encrypted_field_count': 0,
+            'modules_with_encryption': [],
+            'total_records': 0,
+            'modules_found': [],
+            'version': data.get('export_info', {}).get('version', 'unknown')
+        }
+        
+        # Check for encryption preferences
+        if 'encryption_preferences' in data:
+            analysis['encryption_preferences_included'] = True
+        
+        # Analyze each module for encrypted data
+        modules_to_check = {
+            'habits': ['name', 'description'],
+            'daily_notes': ['content'],
+            'todos': ['title', 'description', 'category'],
+            'reading': ['notes'],
+            'birthdays': ['name', 'notes'],
+            'watchlist': ['notes']
+        }
+        
+        for module_name, fields_to_check in modules_to_check.items():
+            if module_name in data and data[module_name]:
+                analysis['modules_found'].append(module_name)
+                analysis['total_records'] += len(data[module_name])
+                
+                # Check for encrypted content in this module
+                module_has_encryption = False
+                for item in data[module_name]:
+                    for field in fields_to_check:
+                        if field in item and isinstance(item[field], str):
+                            if encryption_manager.is_encrypted(item[field]):
+                                analysis['has_encrypted_data'] = True
+                                analysis['encrypted_field_count'] += 1
+                                module_has_encryption = True
+                
+                if module_has_encryption and module_name not in analysis['modules_with_encryption']:
+                    analysis['modules_with_encryption'].append(module_name)
+        
+        # Determine format
+        if analysis['has_encrypted_data']:
+            if analysis['encryption_preferences_included']:
+                analysis['format_detected'] = 'mixed'
+            else:
+                analysis['format_detected'] = 'encrypted'
+        else:
+            analysis['format_detected'] = 'plain'
+        
+        return analysis
     
     @staticmethod
     def _clear_user_data(user_id: int):

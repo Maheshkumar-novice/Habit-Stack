@@ -5,25 +5,39 @@ Reading list model for book tracking and management
 from datetime import datetime
 from typing import Optional, List, Dict
 from database import get_db
+from models.base_encrypted import EncryptedModelMixin
 
 
-class Reading:
+class Reading(EncryptedModelMixin):
     """Reading list model for book tracking and management"""
     
-    @staticmethod
-    def create(user_id: int, title: str, author: str, total_pages: int = None, 
+    # Field mapping for encryption
+    ENCRYPTED_FIELDS = {
+        'notes': 'notes'
+    }
+    
+    @classmethod
+    def create(cls, user_id: int, title: str, author: str, total_pages: int = None, 
                status: str = 'want_to_read', rating: int = None, notes: str = None) -> int:
-        """Create a new book entry for user"""
+        """Create a new book entry for user with encryption"""
+        instance = cls()
+        
+        # Prepare data for storage with encryption
+        book_data = {'notes': notes or ''}
+        encrypted_data = instance._process_fields_for_storage(
+            book_data, 'reading', cls.ENCRYPTED_FIELDS
+        )
+        
         with get_db() as conn:
             cursor = conn.execute("""
                 INSERT INTO reading_list (user_id, title, author, total_pages, status, rating, notes) 
                 VALUES (?, ?, ?, ?, ?, ?, ?)
-            """, (user_id, title, author, total_pages, status, rating, notes))
+            """, (user_id, title, author, total_pages, status, rating, encrypted_data['notes'] or None))
             conn.commit()
             return cursor.lastrowid
     
-    @staticmethod
-    def get_user_books(user_id: int, status: str = None) -> List[Dict]:
+    @classmethod
+    def get_user_books(cls, user_id: int, status: str = None) -> List[Dict]:
         """Get reading list for a user, optionally filtered by status"""
         with get_db() as conn:
             if status:

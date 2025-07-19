@@ -5,13 +5,20 @@ Birthday model for birthday reminders
 from datetime import datetime, date
 from typing import Optional, List, Dict
 from database import get_db
+from models.base_encrypted import EncryptedModelMixin
 
 
-class Birthday:
+class Birthday(EncryptedModelMixin):
     """Birthday model for birthday reminders"""
     
-    @staticmethod
-    def get_user_birthdays(user_id: int) -> List[Dict]:
+    # Field mapping for encryption
+    ENCRYPTED_FIELDS = {
+        'name': 'name',
+        'notes': 'notes'
+    }
+    
+    @classmethod
+    def get_user_birthdays(cls, user_id: int) -> List[Dict]:
         """Get all birthdays for a user"""
         with get_db() as conn:
             birthdays = conn.execute("""

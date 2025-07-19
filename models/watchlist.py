@@ -4,13 +4,19 @@ Watchlist model for movies and series tracking
 
 from typing import Optional, List, Dict
 from database import get_db
+from models.base_encrypted import EncryptedModelMixin
 
 
-class Watchlist:
+class Watchlist(EncryptedModelMixin):
     """Watchlist model for movies and series tracking"""
     
-    @staticmethod
-    def get_user_watchlist(user_id: int, status: str = None) -> List[Dict]:
+    # Field mapping for encryption
+    ENCRYPTED_FIELDS = {
+        'notes': 'notes'
+    }
+    
+    @classmethod
+    def get_user_watchlist(cls, user_id: int, status: str = None) -> List[Dict]:
         """Get watchlist items for a user, optionally filtered by status"""
         with get_db() as conn:
             if status:
