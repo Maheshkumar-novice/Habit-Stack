@@ -45,23 +45,16 @@
         <!-- Privacy & Encryption Section (Full Width) -->
         {% include 'components/privacy_encryption.html' %}
         
-        <!-- Two Column Layout for Other Sections -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Data Export Section (Full Width) -->
+        {% include 'components/data_export.html' %}
+        
+        <!-- Bottom Row: Import and Account side by side on large screens -->
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+            <!-- Data Import -->
+            {% include 'components/data_import.html' %}
             
-            <!-- Left Column -->
-            <div class="space-y-8">
-                <!-- Data Export -->
-                {% include 'components/data_export.html' %}
-            </div>
-            
-            <!-- Right Column -->
-            <div class="space-y-8">
-                <!-- Data Import -->
-                {% include 'components/data_import.html' %}
-                
-                <!-- Account Settings -->
-                {% include 'components/account_settings.html' %}
-            </div>
+            <!-- Account Settings -->
+            {% include 'components/account_settings.html' %}
         </div>
     </div>
 </main>
