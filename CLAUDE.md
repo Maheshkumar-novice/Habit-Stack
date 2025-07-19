@@ -114,14 +114,85 @@ timeout 10 uv run python app.py
 - `.python-version` - Specifies Python 3.13 requirement
 - `DEPLOYMENT.md` - Complete production deployment guide
 
+## Encryption Architecture
+
+HabitStack implements a comprehensive **zero-knowledge field-level encryption system** that ensures user data privacy even from server administrators.
+
+### **Encryption Overview**
+- **Zero-Knowledge Design** - Server cannot read encrypted user data
+- **User-Controlled Granularity** - Users choose which fields to encrypt
+- **AES-128 Encryption** - Industry-standard symmetric encryption
+- **PBKDF2 Key Derivation** - 100,000 iterations for security
+- **Session-Based Keys** - Keys derived fresh each login
+- **Backward Compatible** - Works with existing unencrypted data
+
+### **Key Derivation Process**
+```
+User Password + Unique Salt → PBKDF2(100k iterations) → Encryption Key
+                                        ↓
+                               Session Storage (Memory Only)
+                                        ↓
+                            Field-Level Encryption/Decryption
+```
+
+### **Encryption Flow**
+1. **User Login** → Password + Salt → Derive encryption key → Store in session
+2. **Data Write** → Check user preferences → Encrypt if enabled → Store in database
+3. **Data Read** → Fetch from database → Decrypt if encrypted → Display to user
+4. **User Logout** → Clear encryption key from session
+
+### **Security Implementation**
+- **Salt Generation**: Cryptographically secure 32-byte random salt per user
+- **Key Derivation**: PBKDF2-HMAC-SHA256 with 100,000 iterations (OWASP compliant)
+- **Encryption Algorithm**: AES-128 in Fernet mode (authenticated encryption)
+- **Key Storage**: Memory-only session storage, never persisted to disk
+- **Data Format**: Encrypted data prefixed with "gAAAAA" for format detection
+
+### **Encryptable Fields (10 Total)**
+```
+Module         Field         Recommended   Description
+────────────────────────────────────────────────────────
+habits         name          ✓            Habit names (personal)
+habits         description   ✓            Habit descriptions
+notes          content       ✓            Daily journal content
+todos          title         ✓            Task titles  
+todos          description   ✓            Task descriptions
+todos          category      -            Task categories (searchable)
+reading        notes         ✓            Personal book notes
+birthdays      name          ✓            Contact names
+birthdays      notes         ✓            Personal relationship notes
+watchlist      notes         ✓            Personal movie/series notes
+```
+
+### **Privacy Levels**
+- **Maximum Privacy**: All 10 fields encrypted
+- **High Privacy**: 8-9 fields encrypted (recommended fields)
+- **Medium Privacy**: 4-7 fields encrypted (sensitive content only)
+- **Low Privacy**: 1-3 fields encrypted (minimal encryption)
+- **No Encryption**: 0 fields encrypted (plain text)
+
+### **Migration System**
+- **Automatic Migration** - Re-encrypts data when preferences change
+- **Smart Detection** - Detects encrypted vs plain text data
+- **Password Changes** - Migrates data from old key to new key
+- **Error Recovery** - Graceful handling of migration failures
+
+### **Encryption Utilities**
+- `utils/encryption.py` - Core AES-128 encryption with key derivation
+- `utils/field_registry.py` - Dynamic field registration and discovery
+- `utils/preferences.py` - User preference management with smart defaults
+- `utils/migration.py` - Data migration for preference changes
+- `models/base_encrypted.py` - Encryption mixin for all data models
+
 ## Architecture Notes
 
 **Current Implementation:**
 - Pure Flask backend with modular Blueprint architecture
+- **Field-Level Encryption** with user-controlled granular preferences
 - Standard HTML form submissions with server-side redirects
 - Tailwind CSS for responsive design (CDN-based, no build step)
 - SQLite database with proper user isolation and soft delete capability
-- Session-based authentication with bcrypt password hashing
+- Session-based authentication with bcrypt password hashing + encryption keys
 - Progressive Web App (PWA) capabilities
 - Minimal JavaScript (only PWA service worker and hamburger menu)
 

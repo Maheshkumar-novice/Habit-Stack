@@ -79,3 +79,69 @@ All routes prefixed with `/habitstack/`:
 - `/watchlist` - Movies/series tracking with progress
 - `/sports` - Football transfer news aggregation with multi-source display
 - `/settings` - Account and modular data management
+
+## User-Controlled Field Encryption
+
+HabitStack implements a comprehensive zero-knowledge encryption system that gives users granular control over which personal data fields are encrypted. The system uses industry-standard cryptographic practices to ensure that sensitive data remains protected while maintaining usability.
+
+### Encryption Overview
+
+- **Zero-Knowledge Architecture**: The server cannot read encrypted user data
+- **Field-Level Granularity**: Users choose exactly which fields to encrypt
+- **Session-Based Keys**: Encryption keys derived from passwords, stored only in session
+- **Smart Migration**: Automatic encryption/decryption when preferences change
+- **Privacy Levels**: Recommended encryption settings based on data sensitivity
+
+### Cryptographic Implementation
+
+**Key Derivation**: PBKDF2-HMAC-SHA256 with 100,000 iterations (OWASP compliant)
+- Password + 16-byte user salt → 32-byte encryption key
+- Salt generated once per user, stored in database
+- Keys derived fresh each login, stored only in session
+
+**Encryption**: Fernet (AES-128 in CBC mode with HMAC authentication)
+- Authenticated encryption prevents tampering
+- Built-in timestamp validation
+- URL-safe base64 encoding for database storage
+
+**Data Detection**: Smart identification of encrypted vs plaintext data
+- Fernet tokens start with 'gAAAAA' (timestamp marker)
+- Length and base64 validation checks
+- Graceful fallback for mixed data states
+
+### Encryptable Fields
+
+| Module | Field | Privacy Level | Recommendation |
+|--------|-------|---------------|----------------|
+| **Habits** | name | Medium | Optional - visible on dashboard |
+| | description | Medium | Optional - usually brief |
+| **Notes** | content | High | **Recommended** - personal thoughts |
+| **Todos** | title | Medium | Optional - often task-oriented |
+| | description | High | **Recommended** - detailed plans |
+| **Reading** | title | Low | Optional - book titles usually public |
+| | notes | High | **Recommended** - personal reviews |
+| **Birthdays** | name | High | **Recommended** - personal relationships |
+| | notes | High | **Recommended** - relationship details |
+| **Watchlist** | title | Low | Optional - entertainment titles |
+| | notes | Medium | Optional - viewing preferences |
+
+### Privacy Levels
+
+- **High (Recommended)**: Personal thoughts, relationships, detailed plans
+- **Medium (Optional)**: Descriptive content, personal preferences  
+- **Low (Not recommended)**: Titles, brief labels, public information
+
+### Technical Files
+
+- `utils/encryption.py` - Core encryption/decryption operations (111 lines)
+- `utils/field_registry.py` - Central field definitions and metadata
+- `utils/preferences.py` - User preference management and smart defaults
+- `utils/migration.py` - Automatic data encryption/decryption system
+- `auth.py:setup_user_encryption_key()` - Session key derivation and storage
+
+### Security Features
+
+- **Session Security**: Keys cleared on logout, regenerated on login
+- **Migration Safety**: Existing data preserved during preference changes
+- **Error Handling**: Graceful fallback prevents data loss
+- **Production Ready**: Database schema auto-migration for deployment
