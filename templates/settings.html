@@ -3,15 +3,14 @@
 {% block content %}
 {% set current_page = 'settings' %}
 {% set page_title = 'Settings' %}
-{% set back_link = {'url': '/habitstack/', 'text': '←'} %}
 {% include 'navbar.html' %}
 
 <!-- Main Content -->
-<main class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-8">
+<main class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
     <!-- Page Header -->
     <div class="mb-8">
         <h2 class="text-2xl font-bold text-gray-900">Settings</h2>
-        <p class="mt-1 text-sm text-gray-600">Manage your data and preferences</p>
+        <p class="mt-1 text-sm text-gray-600">Manage your privacy, data, and account preferences</p>
     </div>
 
     <!-- Flash Messages -->
@@ -40,635 +39,516 @@
         {% endif %}
     {% endwith %}
 
-    <!-- Encryption Settings Section -->
-    {% if fields_by_module %}
-    <div class="bg-white shadow-sm rounded-lg border border-gray-200 mb-8">
-        <div class="px-6 py-4 border-b border-gray-200">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h3 class="text-lg font-medium text-gray-900 flex items-center">
-                        🔒 Privacy & Encryption
-                    </div>
-                    <p class="mt-1 text-sm text-gray-600">Choose which personal information to encrypt</p>
-                </div>
-                {% if encryption_summary %}
-                <div class="text-right">
-                    <div class="text-sm font-medium text-gray-900">
-                        {{ encryption_summary.encrypted_fields }}/{{ encryption_summary.total_fields }} fields encrypted
-                    </div>
-                    <div class="text-xs text-gray-500">
-                        {% if encryption_summary.privacy_level == 'high' %}
-                            🔒 High Privacy
-                        {% elif encryption_summary.privacy_level == 'medium' %}
-                            🛡️ Medium Privacy
-                        {% elif encryption_summary.privacy_level == 'low' %}
-                            🔓 Low Privacy
-                        {% else %}
-                            📄 No Encryption
-                        {% endif %}
-                    </div>
-                </div>
-                {% endif %}
-            </div>
-        </div>
+    <!-- Settings Grid Layout -->
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
         
-        <div class="p-4 sm:p-6">
-            <div class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <div class="flex">
-                    <div class="flex-shrink-0">
-                        <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                    <div class="ml-3">
-                        <p class="text-sm text-blue-700">
-                            <strong>Privacy Protection:</strong> Encrypted fields cannot be read by anyone, including the server administrator. 
-                            Only you can decrypt your data using your login password.
-                        </p>
-                        <p class="text-xs text-blue-600 mt-1">
-                            ⚠️ Encrypted fields cannot be searched. Choose wisely based on your privacy needs.
-                        </p>
-                    </div>
-                </div>
-            </div>
+        <!-- Left Column: Privacy & Data -->
+        <div class="space-y-8">
             
-            <form method="POST" action="/habitstack/update-encryption-preferences">
-                {% for module_name, fields in fields_by_module.items() %}
-                <div class="module-group mb-6 p-4 border border-gray-200 rounded-lg">
-                    <h4 class="font-medium text-gray-900 mb-3 flex items-center">
-                        {% if module_name == 'habits' %}📋 Habits
-                        {% elif module_name == 'notes' %}📝 Daily Notes
-                        {% elif module_name == 'todos' %}✅ Todos
-                        {% elif module_name == 'reading' %}📚 Reading List
-                        {% elif module_name == 'birthdays' %}🎂 Birthdays
-                        {% elif module_name == 'watchlist' %}🎬 Watchlist
-                        {% else %}📄 {{ module_name.title() }}
-                        {% endif %}
-                        
-                        {% set has_new_fields = False %}
-                        {% for field in new_fields %}
-                            {% if field.module == module_name %}
-                                {% set has_new_fields = True %}
-                            {% endif %}
-                        {% endfor %}
-                        {% if has_new_fields %}
-                        <span class="ml-2 px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">New!</span>
-                        {% endif %}
-                    </h4>
-                    
-                    <div class="field-options space-y-3">
-                        {% for field in fields %}
-                        {% set field_key = field.module + '_' + field.field_name %}
-                        <label class="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer">
-                            <input type="checkbox" 
-                                   name="encrypted_fields" 
-                                   value="{{ field_key }}"
-                                   class="mt-1 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                                   {% if user_preferences.get(field_key) %}checked{% endif %}>
-                            <div class="flex-1">
-                                <div class="flex items-center space-x-2">
-                                    <span class="font-medium text-gray-900">{{ field.display_name }}</span>
-                                    {% if field.recommended %}
-                                    <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Recommended</span>
-                                    {% endif %}
-                                </div>
-                                <p class="text-sm text-gray-500 mt-1">{{ field.description }}</p>
+            <!-- Privacy & Encryption Section -->
+            {% if fields_by_module %}
+            <div class="bg-white shadow-sm rounded-lg border border-gray-200">
+                <div class="px-4 sm:px-6 py-4 border-b border-gray-200">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
+                        <div>
+                            <h3 class="text-lg font-medium text-gray-900 flex items-center">
+                                🔒 Privacy & Encryption
+                            </h3>
+                            <p class="mt-1 text-sm text-gray-600">Choose which personal information to encrypt</p>
+                        </div>
+                        {% if encryption_summary %}
+                        <div class="text-center sm:text-right">
+                            <div class="text-sm font-medium text-gray-900">
+                                {{ encryption_summary.encrypted_fields }}/{{ encryption_summary.total_fields }} fields encrypted
                             </div>
-                        </label>
-                        {% endfor %}
+                            <div class="text-xs text-gray-500">
+                                {% if encryption_summary.privacy_level == 'high' %}
+                                    🔒 High Privacy
+                                {% elif encryption_summary.privacy_level == 'medium' %}
+                                    🛡️ Medium Privacy
+                                {% elif encryption_summary.privacy_level == 'low' %}
+                                    🔓 Low Privacy
+                                {% else %}
+                                    📄 No Encryption
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
-                {% endfor %}
                 
-                <div class="flex items-center justify-between pt-4 border-t border-gray-200">
-                    <div class="text-sm text-gray-500 space-y-1">
-                        <p>💡 <strong>Tip:</strong> Encrypt personal content, keep organizational fields plain for searchability.</p>
-                        <p>🔑 Your encryption key is derived from your login password - keep it secure!</p>
-                    </div>
-                    <button type="submit" 
-                            class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                        Update Privacy Settings
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-    {% endif %}
-
-    <!-- Data Management Section -->
-    <div class="bg-white shadow-sm rounded-lg border border-gray-200">
-        <div class="px-6 py-4 border-b border-gray-200">
-            <h3 class="text-lg font-medium text-gray-900">Data Management</h3>
-            <p class="mt-1 text-sm text-gray-600">Export and import your HabitStack data</p>
-        </div>
-        
-        <div class="p-4 sm:p-6 space-y-6 sm:space-y-8">
-            <!-- Module Selection Export Section -->
-            <div>
-                <div class="flex items-start space-x-3 sm:space-x-4">
-                    <div class="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-lg bg-blue-100 flex-shrink-0">
-                        <svg class="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                        </svg>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <h4 class="text-base font-medium text-gray-900">Export Data</h4>
-                        <p class="mt-1 text-sm text-gray-600">
-                            Choose which modules to export. Select all for a complete backup, or pick specific modules for targeted exports.
-                        </p>
-                        
-                        <div class="mt-4">
-                            <form method="post" action="/habitstack/export-modules" class="space-y-4">
-                                <!-- Module Selection Grid -->
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-                                    <!-- Habits -->
-                                    <label class="flex items-center p-2.5 sm:p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
-                                        <input type="checkbox" name="modules" value="habits" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded flex-shrink-0">
-                                        <span class="ml-2.5 sm:ml-3 flex-1 min-w-0">
-                                            <span class="text-sm font-medium text-gray-900 block truncate">✓ Habits</span>
-                                            <span class="block text-xs text-gray-500">{{ module_counts.habits }} items</span>
-                                        </span>
-                                    </label>
-                                    
-                                    <!-- Habit Completions -->
-                                    <label class="flex items-center p-2.5 sm:p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
-                                        <input type="checkbox" name="modules" value="habit_completions" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded flex-shrink-0">
-                                        <span class="ml-2.5 sm:ml-3 flex-1 min-w-0">
-                                            <span class="text-sm font-medium text-gray-900 block truncate">📈 Habit History</span>
-                                            <span class="block text-xs text-gray-500">{{ module_counts.habit_completions }} completions</span>
-                                        </span>
-                                    </label>
-                                    
-                                    <!-- Daily Notes -->
-                                    <label class="flex items-center p-2.5 sm:p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
-                                        <input type="checkbox" name="modules" value="daily_notes" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded flex-shrink-0">
-                                        <span class="ml-2.5 sm:ml-3 flex-1 min-w-0">
-                                            <span class="text-sm font-medium text-gray-900 block truncate">📝 Daily Notes</span>
-                                            <span class="block text-xs text-gray-500">{{ module_counts.daily_notes }} notes</span>
-                                        </span>
-                                    </label>
-                                    
-                                    <!-- Todos -->
-                                    <label class="flex items-center p-2.5 sm:p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
-                                        <input type="checkbox" name="modules" value="todos" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded flex-shrink-0">
-                                        <span class="ml-2.5 sm:ml-3 flex-1 min-w-0">
-                                            <span class="text-sm font-medium text-gray-900 block truncate">✅ Todo List</span>
-                                            <span class="block text-xs text-gray-500">{{ module_counts.todos }} todos</span>
-                                        </span>
-                                    </label>
-                                    
-                                    <!-- Birthdays -->
-                                    <label class="flex items-center p-2.5 sm:p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
-                                        <input type="checkbox" name="modules" value="birthdays" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded flex-shrink-0">
-                                        <span class="ml-2.5 sm:ml-3 flex-1 min-w-0">
-                                            <span class="text-sm font-medium text-gray-900 block truncate">🎂 Birthdays</span>
-                                            <span class="block text-xs text-gray-500">{{ module_counts.birthdays }} birthdays</span>
-                                        </span>
-                                    </label>
-                                    
-                                    <!-- Reading List -->
-                                    <label class="flex items-center p-2.5 sm:p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
-                                        <input type="checkbox" name="modules" value="reading" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded flex-shrink-0">
-                                        <span class="ml-2.5 sm:ml-3 flex-1 min-w-0">
-                                            <span class="text-sm font-medium text-gray-900 block truncate">📚 Reading List</span>
-                                            <span class="block text-xs text-gray-500">{{ module_counts.reading }} books</span>
-                                        </span>
-                                    </label>
-                                    
-                                    <!-- Watchlist -->
-                                    <label class="flex items-center p-2.5 sm:p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
-                                        <input type="checkbox" name="modules" value="watchlist" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded flex-shrink-0">
-                                        <span class="ml-2.5 sm:ml-3 flex-1 min-w-0">
-                                            <span class="text-sm font-medium text-gray-900 block truncate">🎬 Watchlist</span>
-                                            <span class="block text-xs text-gray-500">{{ module_counts.watchlist }} items</span>
-                                        </span>
-                                    </label>
-                                </div>
-                                
-                                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
-                                    <div class="flex space-x-2 justify-center sm:justify-start">
-                                        <button type="button" onclick="selectAllModules()" class="text-sm text-blue-600 hover:text-blue-800 transition-colors">Select All</button>
-                                        <span class="text-gray-300">|</span>
-                                        <button type="button" onclick="selectNoneModules()" class="text-sm text-blue-600 hover:text-blue-800 transition-colors">Select None</button>
-                                    </div>
-                                    <button type="submit" 
-                                            class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors w-full sm:w-auto">
-                                        <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M7 13h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v4a2 2 0 002 2z"></path>
-                                        </svg>
-                                        Export Selected
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                        
-                        <!-- Full Export Options -->
-                        <div class="mt-4 pt-4 border-t border-gray-100">
-                            <p class="text-sm font-medium text-gray-700 mb-3">Export All Data:</p>
-                            
-                            <div class="space-y-2">
-                                <form method="post" action="/habitstack/export" class="inline">
-                                    <input type="hidden" name="export_format" value="readable">
-                                    <button type="submit" 
-                                            class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M7 13h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2-2z"></path>
-                                        </svg>
-                                        Export Readable (Recommended)
-                                    </button>
-                                    <p class="text-xs text-gray-500 mt-1">All data decrypted for easy reading and migration</p>
-                                </form>
-                                
-                                <form method="post" action="/habitstack/export" class="inline">
-                                    <input type="hidden" name="export_format" value="encrypted">
-                                    <button type="submit" 
-                                            class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-                                        </svg>
-                                        Export Encrypted
-                                    </button>
-                                    <p class="text-xs text-gray-500 mt-1">Preserves current encryption state</p>
-                                </form>
+                <div class="p-4 sm:p-6">
+                    <!-- Privacy Info Box -->
+                    <div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-blue-700">
+                                    <strong>Zero-Knowledge Privacy:</strong> Encrypted fields cannot be read by anyone, including the server administrator. 
+                                    Only you can decrypt your data using your login password.
+                                </p>
+                                <p class="text-xs text-blue-600 mt-1">
+                                    ⚠️ Encrypted fields cannot be searched. Choose based on your privacy needs.
+                                </p>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <!-- Divider -->
-            <div class="border-t border-gray-200"></div>
-
-            <!-- Module Selection Import Section -->
-            <div>
-                <div class="flex items-start space-x-3 sm:space-x-4">
-                    <div class="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-lg bg-orange-100 flex-shrink-0">
-                        <svg class="h-5 w-5 sm:h-6 sm:w-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
-                        </svg>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <h4 class="text-base font-medium text-gray-900">Import Data</h4>
-                        <p class="mt-1 text-sm text-gray-600">
-                            Upload a JSON backup file and choose which modules to import. You can replace existing data or analyze the file first.
-                        </p>
-                        
-                        <div class="mt-4">
-                            <form method="post" action="/habitstack/import-modules" enctype="multipart/form-data" class="space-y-4">
-                                <div>
-                                    <label for="backup_file" class="block text-sm font-medium text-gray-700">
-                                        Select JSON backup file
-                                    </label>
-                                    <div class="mt-1">
-                                        <input type="file" 
-                                               name="backup_file" 
-                                               id="backup_file" 
-                                               accept=".json,application/json"
-                                               required
-                                               class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2">
-                                    </div>
-                                </div>
-                                
-                                <!-- Import Strategy -->
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Import Strategy</label>
-                                    <div class="mt-2 space-y-2">
-                                        <label class="flex items-center">
-                                            <input type="radio" name="import_strategy" value="replace" checked class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300">
-                                            <span class="ml-2 text-sm text-gray-700">Replace - Clear existing data and import selected modules</span>
-                                        </label>
-                                        <label class="flex items-center">
-                                            <input type="radio" name="import_strategy" value="merge" class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300">
-                                            <span class="ml-2 text-sm text-gray-700">Merge - Add to existing data (experimental)</span>
-                                        </label>
-                                    </div>
-                                </div>
-                                
-                                <!-- Module Selection -->
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700">Modules to Import</label>
-                                    <div class="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                        <label class="flex items-center">
-                                            <input type="checkbox" name="import_modules" value="habits" checked class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
-                                            <span class="ml-2 text-sm text-gray-700">✓ Habits</span>
-                                        </label>
-                                        <label class="flex items-center">
-                                            <input type="checkbox" name="import_modules" value="habit_completions" checked class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
-                                            <span class="ml-2 text-sm text-gray-700">📈 History</span>
-                                        </label>
-                                        <label class="flex items-center">
-                                            <input type="checkbox" name="import_modules" value="daily_notes" checked class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
-                                            <span class="ml-2 text-sm text-gray-700">📝 Notes</span>
-                                        </label>
-                                        <label class="flex items-center">
-                                            <input type="checkbox" name="import_modules" value="todos" checked class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
-                                            <span class="ml-2 text-sm text-gray-700">✅ Todos</span>
-                                        </label>
-                                        <label class="flex items-center">
-                                            <input type="checkbox" name="import_modules" value="reading" checked class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
-                                            <span class="ml-2 text-sm text-gray-700">📚 Reading</span>
-                                        </label>
-                                        <label class="flex items-center">
-                                            <input type="checkbox" name="import_modules" value="birthdays" checked class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
-                                            <span class="ml-2 text-sm text-gray-700">🎂 Birthdays</span>
-                                        </label>
-                                        <label class="flex items-center">
-                                            <input type="checkbox" name="import_modules" value="watchlist" checked class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
-                                            <span class="ml-2 text-sm text-gray-700">🎬 Watchlist</span>
-                                        </label>
-                                    </div>
-                                </div>
-                                
-                                <!-- Warning for Replace Strategy -->
-                                <div class="p-4 bg-amber-50 border border-amber-200 rounded-md">
-                                    <div class="flex">
-                                        <div class="flex-shrink-0">
-                                            <svg class="h-5 w-5 text-amber-400" viewBox="0 0 20 20" fill="currentColor">
-                                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-                                            </svg>
-                                        </div>
-                                        <div class="ml-3">
-                                            <h5 class="text-sm font-medium text-amber-800">Important</h5>
-                                            <p class="mt-1 text-sm text-amber-700">
-                                                Replace strategy will permanently delete existing data for selected modules. Export your current data first if needed.
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
-                                    <button type="button" onclick="analyzeImportFile()" 
-                                            class="inline-flex items-center justify-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 w-full sm:w-auto">
-                                        <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                        </svg>
-                                        Analyze File
-                                    </button>
+                    
+                    <!-- Encryption Form -->
+                    <form method="POST" action="/habitstack/update-encryption-preferences">
+                        <!-- Module Groups -->
+                        <div class="space-y-6">
+                            {% for module_name, fields in fields_by_module.items() %}
+                            <div class="border border-gray-200 rounded-lg p-4">
+                                <h4 class="font-medium text-gray-900 mb-3 flex items-center flex-wrap">
+                                    <span class="flex items-center">
+                                        {% if module_name == 'habits' %}📋 Habits
+                                        {% elif module_name == 'notes' %}📝 Daily Notes
+                                        {% elif module_name == 'todos' %}✅ Todos
+                                        {% elif module_name == 'reading' %}📚 Reading List
+                                        {% elif module_name == 'birthdays' %}🎂 Birthdays
+                                        {% elif module_name == 'watchlist' %}🎬 Watchlist
+                                        {% else %}📄 {{ module_name.title() }}
+                                        {% endif %}
+                                    </span>
                                     
-                                    <button type="submit" 
-                                            class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors w-full sm:w-auto">
-                                        <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                                        </svg>
-                                        Import Selected
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                        
-                        <!-- Legacy Import Option -->
-                        <div class="mt-4 pt-4 border-t border-gray-100">
-                            <p class="text-xs text-gray-500 mb-2">Legacy option:</p>
-                            <form method="post" action="/habitstack/import" enctype="multipart/form-data" class="space-y-2 sm:space-y-0">
-                                <div class="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
-                                    <input type="file" name="import_file" accept=".json" required class="text-xs flex-1">
-                                    <div class="flex items-center space-x-2">
-                                        <input type="checkbox" name="confirm_replace" required class="h-3 w-3">
-                                        <span class="text-xs text-gray-500">Replace all</span>
-                                        <button type="submit" class="inline-flex items-center px-2 py-1 text-xs font-medium rounded border border-gray-300 text-gray-700 bg-white hover:bg-gray-50">
-                                            Import All (Old)
-                                        </button>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- JavaScript for Module Selection -->
-        <script>
-        function selectAllModules() {
-            const checkboxes = document.querySelectorAll('input[name="modules"]');
-            checkboxes.forEach(cb => cb.checked = true);
-        }
-        
-        function selectNoneModules() {
-            const checkboxes = document.querySelectorAll('input[name="modules"]');
-            checkboxes.forEach(cb => cb.checked = false);
-        }
-        
-        function analyzeImportFile() {
-            const fileInput = document.getElementById('backup_file');
-            if (!fileInput.files[0]) {
-                alert('Please select a file first');
-                return;
-            }
-            
-            const formData = new FormData();
-            formData.append('analyze_file', fileInput.files[0]);
-            
-            fetch('/habitstack/analyze-import', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const analysis = data.analysis;
-                    let message = `File Analysis:\n\n`;
-                    message += `Export Date: ${analysis.export_info.timestamp || 'Unknown'}\n`;
-                    message += `Username: ${analysis.export_info.username || 'Unknown'}\n\n`;
-                    message += `Available Modules:\n`;
-                    
-                    Object.entries(analysis.modules).forEach(([key, info]) => {
-                        message += `${info.icon} ${info.name}: ${info.count} items ${info.available ? '✓' : '(empty)'}\n`;
-                    });
-                    
-                    alert(message);
-                } else {
-                    alert(`Analysis failed: ${data.error}`);
-                }
-            })
-            .catch(error => {
-                alert(`Analysis failed: ${error}`);
-            });
-        }
-        </script>
-    </div>
-
-    <!-- Account Settings Section -->
-    <div class="mt-8 bg-white shadow-sm rounded-lg border border-gray-200">
-        <div class="px-4 sm:px-6 py-4 border-b border-gray-200">
-            <h3 class="text-lg font-medium text-gray-900">Account Settings</h3>
-            <p class="mt-1 text-sm text-gray-600">Manage your account information and security</p>
-        </div>
-        
-        <div class="p-4 sm:p-6 space-y-6 sm:space-y-8">
-            <!-- Username Info -->
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
-                <div class="min-w-0 flex-1">
-                    <h4 class="text-base font-medium text-gray-900">Username</h4>
-                    <p class="text-sm text-gray-600 truncate">{{ user.username }}</p>
-                </div>
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 flex-shrink-0 self-start sm:self-center">
-                    Active
-                </span>
-            </div>
-
-            <!-- Divider -->
-            <div class="border-t border-gray-200"></div>
-
-            <!-- Password Update Section -->
-            <div>
-                <div class="flex items-start space-x-3 sm:space-x-4">
-                    <div class="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-lg bg-purple-100 flex-shrink-0">
-                        <svg class="h-5 w-5 sm:h-6 sm:w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-                        </svg>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <h4 class="text-base font-medium text-gray-900">Update Password</h4>
-                        <p class="mt-1 text-sm text-gray-600">
-                            Change your account password. Make sure to use a strong password with at least 8 characters.
-                        </p>
-                        
-                        <div class="mt-4">
-                            <form method="post" action="/habitstack/update-password" class="space-y-4">
-                                <div>
-                                    <label for="current_password" class="block text-sm font-medium text-gray-700">
-                                        Current Password
+                                    {% set has_new_fields = False %}
+                                    {% for field in new_fields %}
+                                        {% if field.module == module_name %}
+                                            {% set has_new_fields = True %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% if has_new_fields %}
+                                    <span class="ml-2 px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">New!</span>
+                                    {% endif %}
+                                </h4>
+                                
+                                <!-- Field Options -->
+                                <div class="space-y-3">
+                                    {% for field in fields %}
+                                    {% set field_key = field.module + '_' + field.field_name %}
+                                    <label class="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                                        <input type="checkbox" 
+                                               name="encrypted_fields" 
+                                               value="{{ field_key }}"
+                                               class="mt-1 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 flex-shrink-0"
+                                               {% if user_preferences.get(field_key) %}checked{% endif %}>
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex items-center space-x-2 flex-wrap">
+                                                <span class="font-medium text-gray-900">{{ field.display_name }}</span>
+                                                {% if field.recommended %}
+                                                <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full flex-shrink-0">Recommended</span>
+                                                {% endif %}
+                                            </div>
+                                            <p class="text-sm text-gray-500 mt-1">{{ field.description }}</p>
+                                        </div>
                                     </label>
-                                    <div class="mt-1">
-                                        <input type="password" 
-                                               name="current_password" 
-                                               id="current_password" 
-                                               required
-                                               class="block w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 text-sm leading-6">
-                                    </div>
+                                    {% endfor %}
                                 </div>
-
-                                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                    <div>
-                                        <label for="new_password" class="block text-sm font-medium text-gray-700">
-                                            New Password
-                                        </label>
-                                        <div class="mt-1">
-                                            <input type="password" 
-                                                   name="new_password" 
-                                                   id="new_password" 
-                                                   required
-                                                   class="block w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 text-sm leading-6">
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <label for="confirm_password" class="block text-sm font-medium text-gray-700">
-                                            Confirm New Password
-                                        </label>
-                                        <div class="mt-1">
-                                            <input type="password" 
-                                                   name="confirm_password" 
-                                                   id="confirm_password" 
-                                                   required
-                                                   class="block w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-purple-600 text-sm leading-6">
-                                        </div>
-                                    </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <!-- Form Actions -->
+                        <div class="mt-6 pt-4 border-t border-gray-200">
+                            <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between space-y-4 lg:space-y-0">
+                                <div class="text-sm text-gray-500 space-y-1 flex-1">
+                                    <p>💡 <strong>Tip:</strong> Encrypt personal content, keep organizational fields plain for searchability.</p>
+                                    <p>🔑 Your encryption key is derived from your login password - keep it secure!</p>
                                 </div>
-
-                                <!-- Password Requirements -->
-                                <div class="text-xs text-gray-500 space-y-1">
-                                    <p>Password requirements:</p>
-                                    <ul class="list-disc list-inside space-y-1 ml-2">
-                                        <li>At least 8 characters long</li>
-                                        <li>Contains at least one uppercase letter</li>
-                                        <li>Contains at least one lowercase letter</li>
-                                        <li>Contains at least one number</li>
-                                    </ul>
-                                </div>
-
                                 <button type="submit" 
-                                        class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors w-full sm:w-auto">
-                                    <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-                                    </svg>
-                                    Update Password
+                                        class="w-full lg:w-auto px-6 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                                    Update Privacy Settings
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Data Export Section -->
+            <div class="bg-white shadow-sm rounded-lg border border-gray-200">
+                <div class="px-4 sm:px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">📤 Data Export</h3>
+                    <p class="mt-1 text-sm text-gray-600">Download your HabitStack data</p>
+                </div>
+                
+                <div class="p-4 sm:p-6">
+                    <!-- Module Selection Export -->
+                    <form method="post" action="/habitstack/export-modules" class="space-y-4">
+                        <h4 class="font-medium text-gray-900">Select Modules to Export</h4>
+                        
+                        <!-- Module Grid -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <label class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                                <input type="checkbox" name="modules" value="habits" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded flex-shrink-0">
+                                <span class="ml-3 flex-1 min-w-0">
+                                    <span class="text-sm font-medium text-gray-900 block">✓ Habits</span>
+                                    <span class="block text-xs text-gray-500">{{ module_counts.habits }} items</span>
+                                </span>
+                            </label>
+                            
+                            <label class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                                <input type="checkbox" name="modules" value="habit_completions" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded flex-shrink-0">
+                                <span class="ml-3 flex-1 min-w-0">
+                                    <span class="text-sm font-medium text-gray-900 block">📈 History</span>
+                                    <span class="block text-xs text-gray-500">{{ module_counts.habit_completions }} completions</span>
+                                </span>
+                            </label>
+                            
+                            <label class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                                <input type="checkbox" name="modules" value="daily_notes" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded flex-shrink-0">
+                                <span class="ml-3 flex-1 min-w-0">
+                                    <span class="text-sm font-medium text-gray-900 block">📝 Notes</span>
+                                    <span class="block text-xs text-gray-500">{{ module_counts.daily_notes }} notes</span>
+                                </span>
+                            </label>
+                            
+                            <label class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                                <input type="checkbox" name="modules" value="todos" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded flex-shrink-0">
+                                <span class="ml-3 flex-1 min-w-0">
+                                    <span class="text-sm font-medium text-gray-900 block">✅ Todos</span>
+                                    <span class="block text-xs text-gray-500">{{ module_counts.todos }} todos</span>
+                                </span>
+                            </label>
+                            
+                            <label class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                                <input type="checkbox" name="modules" value="reading" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded flex-shrink-0">
+                                <span class="ml-3 flex-1 min-w-0">
+                                    <span class="text-sm font-medium text-gray-900 block">📚 Reading</span>
+                                    <span class="block text-xs text-gray-500">{{ module_counts.reading }} books</span>
+                                </span>
+                            </label>
+                            
+                            <label class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                                <input type="checkbox" name="modules" value="birthdays" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded flex-shrink-0">
+                                <span class="ml-3 flex-1 min-w-0">
+                                    <span class="text-sm font-medium text-gray-900 block">🎂 Birthdays</span>
+                                    <span class="block text-xs text-gray-500">{{ module_counts.birthdays }} birthdays</span>
+                                </span>
+                            </label>
+                            
+                            <label class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                                <input type="checkbox" name="modules" value="watchlist" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded flex-shrink-0">
+                                <span class="ml-3 flex-1 min-w-0">
+                                    <span class="text-sm font-medium text-gray-900 block">🎬 Watchlist</span>
+                                    <span class="block text-xs text-gray-500">{{ module_counts.watchlist }} items</span>
+                                </span>
+                            </label>
+                        </div>
+                        
+                        <!-- Export Actions -->
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                            <div class="flex space-x-2">
+                                <button type="button" onclick="selectAllModules()" class="text-sm text-blue-600 hover:text-blue-800 transition-colors">Select All</button>
+                                <span class="text-gray-300">|</span>
+                                <button type="button" onclick="selectNoneModules()" class="text-sm text-blue-600 hover:text-blue-800 transition-colors">Select None</button>
+                            </div>
+                            <button type="submit" 
+                                    class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M7 13h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 002 2v4a2 2 0 002 2z"></path>
+                                </svg>
+                                Export Selected
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <!-- Quick Export Options -->
+                    <div class="mt-6 pt-4 border-t border-gray-200">
+                        <p class="text-sm font-medium text-gray-700 mb-3">Quick Export All Data:</p>
+                        <div class="flex flex-col sm:flex-row gap-2">
+                            <form method="post" action="/habitstack/export" class="flex-1">
+                                <input type="hidden" name="export_format" value="readable">
+                                <button type="submit" 
+                                        class="w-full inline-flex items-center justify-center px-3 py-2 text-sm font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                    📄 Export Readable
+                                </button>
+                            </form>
+                            
+                            <form method="post" action="/habitstack/export" class="flex-1">
+                                <input type="hidden" name="export_format" value="encrypted">
+                                <button type="submit" 
+                                        class="w-full inline-flex items-center justify-center px-3 py-2 text-sm font-medium rounded-lg border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                    🔒 Export Encrypted
                                 </button>
                             </form>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <!-- Divider -->
-            <div class="border-t border-gray-200"></div>
-
-            <!-- Delete Account Section -->
-            <div>
-                <div class="flex items-start space-x-3 sm:space-x-4">
-                    <div class="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-lg bg-red-100 flex-shrink-0">
-                        <svg class="h-5 w-5 sm:h-6 sm:w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-                        </svg>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <h4 class="text-base font-medium text-gray-900">Delete Account</h4>
-                        <p class="mt-1 text-sm text-gray-600">
-                            Permanently delete your account and all associated data. This action cannot be undone.
-                        </p>
+        </div>
+        
+        <!-- Right Column: Data Import & Account -->
+        <div class="space-y-8">
+            
+            <!-- Data Import Section -->
+            <div class="bg-white shadow-sm rounded-lg border border-gray-200">
+                <div class="px-4 sm:px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">📥 Data Import</h3>
+                    <p class="mt-1 text-sm text-gray-600">Upload and restore your data</p>
+                </div>
+                
+                <div class="p-4 sm:p-6">
+                    <form method="post" action="/habitstack/import-modules" enctype="multipart/form-data" class="space-y-4">
+                        <!-- File Upload -->
+                        <div>
+                            <label for="backup_file" class="block text-sm font-medium text-gray-700 mb-2">
+                                Select JSON backup file
+                            </label>
+                            <input type="file" 
+                                   name="backup_file" 
+                                   id="backup_file" 
+                                   accept=".json,application/json"
+                                   required
+                                   class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+                        </div>
                         
-                        <!-- Danger Warning Box -->
-                        <div class="mt-4 p-4 bg-red-50 border border-red-200 rounded-md">
+                        <!-- Import Strategy -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Import Strategy</label>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="radio" name="import_strategy" value="replace" checked class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300">
+                                    <span class="ml-2 text-sm text-gray-700">Replace existing data</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="import_strategy" value="merge" class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300">
+                                    <span class="ml-2 text-sm text-gray-700">Merge with existing</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Modules to Import -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Modules to Import</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="import_modules" value="habits" checked class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded mr-2">
+                                    ✓ Habits
+                                </label>
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="import_modules" value="daily_notes" checked class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded mr-2">
+                                    📝 Notes
+                                </label>
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="import_modules" value="todos" checked class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded mr-2">
+                                    ✅ Todos
+                                </label>
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="import_modules" value="reading" checked class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded mr-2">
+                                    📚 Reading
+                                </label>
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="import_modules" value="birthdays" checked class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded mr-2">
+                                    🎂 Birthdays
+                                </label>
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="import_modules" value="watchlist" checked class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded mr-2">
+                                    🎬 Watchlist
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Warning -->
+                        <div class="p-3 bg-amber-50 border border-amber-200 rounded-lg">
                             <div class="flex">
-                                <div class="flex-shrink-0">
-                                    <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-                                    </svg>
-                                </div>
+                                <svg class="h-5 w-5 text-amber-400 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                </svg>
                                 <div class="ml-3">
-                                    <h5 class="text-sm font-medium text-red-800">Danger Zone</h5>
-                                    <p class="mt-1 text-sm text-red-700">
-                                        Once you delete your account, there is no going back. Your account will be deactivated and all your data will be inaccessible.
-                                        <strong>Make sure to export your data first</strong> if you want to keep a backup.
+                                    <p class="text-sm text-amber-700">
+                                        <strong>Warning:</strong> Replace strategy will permanently delete existing data for selected modules.
                                     </p>
                                 </div>
                             </div>
                         </div>
-
-                        <div class="mt-4">
-                            <form method="post" action="/habitstack/delete-account" class="space-y-4" onsubmit="return confirm('Are you absolutely sure you want to delete your account? This action cannot be undone.')">
-                                <div>
-                                    <label for="password" class="block text-sm font-medium text-gray-700">
-                                        Enter your password to confirm
-                                    </label>
-                                    <div class="mt-1">
-                                        <input type="password" 
-                                               name="password" 
-                                               id="password" 
-                                               required
-                                               class="block w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-red-600 text-sm leading-6">
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label for="confirm_delete" class="block text-sm font-medium text-gray-700">
-                                        Type "DELETE" to confirm
-                                    </label>
-                                    <div class="mt-1">
-                                        <input type="text" 
-                                               name="confirm_delete" 
-                                               id="confirm_delete" 
-                                               required
-                                               placeholder="Type DELETE here"
-                                               class="block w-full rounded-md border-0 px-3 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-red-600 text-sm leading-6">
-                                    </div>
-                                    <p class="mt-1 text-xs text-gray-500">This must match exactly: DELETE</p>
-                                </div>
-
-                                <button type="submit" 
-                                        class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors w-full sm:w-auto">
-                                    <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-                                    </svg>
-                                    Delete My Account
-                                </button>
-                            </form>
+                        
+                        <!-- Import Actions -->
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <button type="button" onclick="analyzeImportFile()" 
+                                    class="flex-1 inline-flex items-center justify-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+                                🔍 Analyze File
+                            </button>
+                            
+                            <button type="submit" 
+                                    class="flex-1 inline-flex items-center justify-center px-4 py-2 bg-orange-600 text-white text-sm font-medium rounded-lg hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors">
+                                📥 Import Selected
+                            </button>
                         </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Account Settings Section -->
+            <div class="bg-white shadow-sm rounded-lg border border-gray-200">
+                <div class="px-4 sm:px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">👤 Account Settings</h3>
+                    <p class="mt-1 text-sm text-gray-600">Manage your account and security</p>
+                </div>
+                
+                <div class="p-4 sm:p-6 space-y-6">
+                    <!-- Username Display -->
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h4 class="text-base font-medium text-gray-900">Username</h4>
+                            <p class="text-sm text-gray-600">{{ user.username }}</p>
+                        </div>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            Active
+                        </span>
+                    </div>
+
+                    <!-- Password Update -->
+                    <div class="border-t border-gray-200 pt-6">
+                        <h4 class="text-base font-medium text-gray-900 mb-4">🔐 Update Password</h4>
+                        <form method="post" action="/habitstack/update-password" class="space-y-4">
+                            <div>
+                                <label for="current_password" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Current Password
+                                </label>
+                                <input type="password" 
+                                       name="current_password" 
+                                       id="current_password" 
+                                       required
+                                       class="block w-full rounded-lg border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm">
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="new_password" class="block text-sm font-medium text-gray-700 mb-1">
+                                        New Password
+                                    </label>
+                                    <input type="password" 
+                                           name="new_password" 
+                                           id="new_password" 
+                                           required
+                                           class="block w-full rounded-lg border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm">
+                                </div>
+
+                                <div>
+                                    <label for="confirm_password" class="block text-sm font-medium text-gray-700 mb-1">
+                                        Confirm Password
+                                    </label>
+                                    <input type="password" 
+                                           name="confirm_password" 
+                                           id="confirm_password" 
+                                           required
+                                           class="block w-full rounded-lg border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm">
+                                </div>
+                            </div>
+
+                            <div class="text-xs text-gray-500 space-y-1">
+                                <p>Password requirements: 8+ characters, uppercase, lowercase, number</p>
+                            </div>
+
+                            <button type="submit" 
+                                    class="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                                Update Password
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Delete Account -->
+                    <div class="border-t border-gray-200 pt-6">
+                        <h4 class="text-base font-medium text-gray-900 mb-4">⚠️ Danger Zone</h4>
+                        
+                        <div class="p-4 bg-red-50 border border-red-200 rounded-lg mb-4">
+                            <p class="text-sm text-red-700">
+                                <strong>Warning:</strong> Account deletion is permanent. Your account will be deactivated and all data will be inaccessible.
+                                Export your data first if needed.
+                            </p>
+                        </div>
+
+                        <form method="post" action="/habitstack/delete-account" class="space-y-4" onsubmit="return confirm('Are you absolutely sure? This cannot be undone.')">
+                            <div>
+                                <label for="password" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Enter password to confirm
+                                </label>
+                                <input type="password" 
+                                       name="password" 
+                                       id="password" 
+                                       required
+                                       class="block w-full rounded-lg border-gray-300 shadow-sm focus:ring-red-500 focus:border-red-500 text-sm">
+                            </div>
+
+                            <div>
+                                <label for="confirm_delete" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Type "DELETE" to confirm
+                                </label>
+                                <input type="text" 
+                                       name="confirm_delete" 
+                                       id="confirm_delete" 
+                                       required
+                                       placeholder="Type DELETE here"
+                                       class="block w-full rounded-lg border-gray-300 shadow-sm focus:ring-red-500 focus:border-red-500 text-sm">
+                            </div>
+
+                            <button type="submit" 
+                                    class="w-full sm:w-auto px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">
+                                Delete Account
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </main>
+
+<!-- JavaScript for Enhanced Functionality -->
+<script>
+function selectAllModules() {
+    const checkboxes = document.querySelectorAll('input[name="modules"]');
+    checkboxes.forEach(cb => cb.checked = true);
+}
+
+function selectNoneModules() {
+    const checkboxes = document.querySelectorAll('input[name="modules"]');
+    checkboxes.forEach(cb => cb.checked = false);
+}
+
+function analyzeImportFile() {
+    const fileInput = document.getElementById('backup_file');
+    if (!fileInput.files[0]) {
+        alert('Please select a file first');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('analyze_file', fileInput.files[0]);
+    
+    fetch('/habitstack/analyze-import', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const analysis = data.analysis;
+            let message = `File Analysis:\n\n`;
+            message += `Export Date: ${analysis.export_info.timestamp || 'Unknown'}\n`;
+            message += `Username: ${analysis.export_info.username || 'Unknown'}\n\n`;
+            message += `Available Modules:\n`;
+            
+            Object.entries(analysis.modules).forEach(([key, info]) => {
+                message += `${info.icon} ${info.name}: ${info.count} items ${info.available ? '✓' : '(empty)'}\n`;
+            });
+            
+            alert(message);
+        } else {
+            alert(`Analysis failed: ${data.error}`);
+        }
+    })
+    .catch(error => {
+        alert(`Analysis failed: ${error}`);
+    });
+}
+</script>
+
 {% endblock %}
