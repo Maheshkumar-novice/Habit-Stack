@@ -76,9 +76,11 @@ class Habit(EncryptedModelMixin):
             
             return habits_with_streaks
     
-    @staticmethod
-    def get_user_habits_with_stats(user_id: int) -> List[Dict]:
-        """Get all habits for user with completion statistics"""
+    @classmethod
+    def get_user_habits_with_stats(cls, user_id: int) -> List[Dict]:
+        """Get all habits for user with completion statistics and decryption"""
+        instance = cls()
+        
         with get_db() as conn:
             habits = conn.execute("""
                 SELECT h.*, 
@@ -91,29 +93,53 @@ class Habit(EncryptedModelMixin):
                 ORDER BY h.created_at
             """, (user_id,)).fetchall()
             
-            # Calculate current streaks
+            # Calculate current streaks and decrypt fields
             habits_with_stats = []
             for habit in habits:
-                streak = Habit.calculate_streak(habit['id'])
                 habit_dict = dict(habit)
+                
+                # Decrypt fields for display
+                decrypted_data = instance._process_fields_for_display(
+                    habit_dict, 'habits', cls.ENCRYPTED_FIELDS
+                )
+                habit_dict.update(decrypted_data)
+                
+                # Calculate streak
+                streak = cls.calculate_streak(habit['id'])
                 habit_dict['current_streak'] = streak
+                
                 habits_with_stats.append(habit_dict)
             
             return habits_with_stats
     
-    @staticmethod
-    def get_by_id(habit_id: int, user_id: int) -> Optional[Dict]:
-        """Get habit by ID, ensuring it belongs to user"""
+    @classmethod
+    def get_by_id(cls, habit_id: int, user_id: int) -> Optional[Dict]:
+        """Get habit by ID with decryption, ensuring it belongs to user"""
+        instance = cls()
+        
         with get_db() as conn:
             habit = conn.execute(
                 "SELECT * FROM habits WHERE id = ? AND user_id = ?",
                 (habit_id, user_id)
             ).fetchone()
-            return dict(habit) if habit else None
+            
+            if not habit:
+                return None
+            
+            habit_dict = dict(habit)
+            # Decrypt fields for display
+            decrypted_data = instance._process_fields_for_display(
+                habit_dict, 'habits', cls.ENCRYPTED_FIELDS
+            )
+            habit_dict.update(decrypted_data)
+            
+            return habit_dict
     
-    @staticmethod
-    def update(habit_id: int, user_id: int, name: str, description: str = None, points: int = 1) -> bool:
-        """Update habit details"""
+    @classmethod
+    def update(cls, habit_id: int, user_id: int, name: str, description: str = None, points: int = 1) -> bool:
+        """Update habit details with encryption"""
+        instance = cls()
+        
         with get_db() as conn:
             # Verify habit belongs to user
             existing = conn.execute(
@@ -124,10 +150,16 @@ class Habit(EncryptedModelMixin):
             if not existing:
                 return False
             
+            # Prepare data for storage with encryption
+            habit_data = {'name': name, 'description': description or ''}
+            encrypted_data = instance._process_fields_for_storage(
+                habit_data, 'habits', cls.ENCRYPTED_FIELDS
+            )
+            
             # Update habit
             conn.execute(
                 "UPDATE habits SET name = ?, description = ?, points = ? WHERE id = ?",
-                (name, description or None, points, habit_id)
+                (encrypted_data['name'], encrypted_data['description'] or None, points, habit_id)
             )
             conn.commit()
             return True

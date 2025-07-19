@@ -44,8 +44,8 @@ class Todo(EncryptedModelMixin):
             conn.commit()
             return cursor.lastrowid
     
-    @staticmethod
-    def get_user_todos(user_id: int, include_completed: bool = False) -> List[Dict]:
+    @classmethod
+    def get_user_todos(cls, user_id: int, include_completed: bool = False) -> List[Dict]:
         """Get todos for user organized by priority and due date"""
         query = """
             SELECT * FROM todos 
@@ -73,12 +73,25 @@ class Todo(EncryptedModelMixin):
                 created_at ASC
         """
         
+        instance = cls()
+        
         with get_db() as conn:
             todos = conn.execute(query, params).fetchall()
-            return [dict(todo) for todo in todos]
+            
+            # Decrypt fields for display
+            result = []
+            for todo in todos:
+                todo_dict = dict(todo)
+                decrypted_data = instance._process_fields_for_display(
+                    todo_dict, 'todos', cls.ENCRYPTED_FIELDS
+                )
+                todo_dict.update(decrypted_data)
+                result.append(todo_dict)
+            
+            return result
     
-    @staticmethod
-    def get_todos_by_status(user_id: int) -> Dict[str, List[Dict]]:
+    @classmethod
+    def get_todos_by_status(cls, user_id: int) -> Dict[str, List[Dict]]:
         """Get todos organized by status (overdue, today, upcoming, someday, completed)"""
         today = date.today().isoformat()
         
