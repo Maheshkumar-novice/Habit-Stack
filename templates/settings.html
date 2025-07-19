@@ -42,20 +42,18 @@
     <!-- Settings Layout -->
     <div class="space-y-8">
         
-        <!-- Privacy & Encryption Section (Full Width) -->
+        <!-- Privacy & Encryption Section -->
         {% include 'components/privacy_encryption.html' %}
         
-        <!-- Data Export Section (Full Width) -->
+        <!-- Data Export Section -->
         {% include 'components/data_export.html' %}
         
-        <!-- Bottom Row: Import and Account side by side on large screens -->
-        <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
-            <!-- Data Import -->
-            {% include 'components/data_import.html' %}
-            
-            <!-- Account Settings -->
-            {% include 'components/account_settings.html' %}
-        </div>
+        <!-- Data Import Section -->
+        {% include 'components/data_import.html' %}
+        
+        <!-- Account Settings Section -->
+        {% include 'components/account_settings.html' %}
+        
     </div>
 </main>
 
