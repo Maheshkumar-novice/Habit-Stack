@@ -19,7 +19,9 @@ class Birthday(EncryptedModelMixin):
     
     @classmethod
     def get_user_birthdays(cls, user_id: int) -> List[Dict]:
-        """Get all birthdays for a user"""
+        """Get all birthdays for a user with decryption"""
+        instance = cls()
+        
         with get_db() as conn:
             birthdays = conn.execute("""
                 SELECT * FROM birthdays 
@@ -32,6 +34,13 @@ class Birthday(EncryptedModelMixin):
             
             for birthday in birthdays:
                 birthday_dict = dict(birthday)
+                
+                # Decrypt fields for display
+                decrypted_data = instance._process_fields_for_display(
+                    birthday_dict, 'birthdays', cls.ENCRYPTED_FIELDS
+                )
+                birthday_dict.update(decrypted_data)
+                
                 birth_date = datetime.strptime(birthday['birth_date'], '%Y-%m-%d').date()
                 
                 # Calculate next birthday
@@ -46,9 +55,11 @@ class Birthday(EncryptedModelMixin):
             
             return result
     
-    @staticmethod
-    def get_upcoming_birthdays(user_id: int, days_ahead: int = 7) -> List[Dict]:
-        """Get upcoming birthdays within specified days"""
+    @classmethod
+    def get_upcoming_birthdays(cls, user_id: int, days_ahead: int = 7) -> List[Dict]:
+        """Get upcoming birthdays within specified days with decryption"""
+        instance = cls()
+        
         with get_db() as conn:
             birthdays = conn.execute("""
                 SELECT * FROM birthdays 
@@ -60,6 +71,13 @@ class Birthday(EncryptedModelMixin):
             
             for birthday in birthdays:
                 birthday_dict = dict(birthday)
+                
+                # Decrypt fields for display
+                decrypted_data = instance._process_fields_for_display(
+                    birthday_dict, 'birthdays', cls.ENCRYPTED_FIELDS
+                )
+                birthday_dict.update(decrypted_data)
+                
                 birth_date = datetime.strptime(birthday['birth_date'], '%Y-%m-%d').date()
                 
                 # Calculate next birthday
@@ -82,9 +100,11 @@ class Birthday(EncryptedModelMixin):
             result.sort(key=lambda x: x['days_until'])
             return result
     
-    @staticmethod
-    def get_todays_birthdays(user_id: int) -> List[Dict]:
-        """Get today's birthdays"""
+    @classmethod
+    def get_todays_birthdays(cls, user_id: int) -> List[Dict]:
+        """Get today's birthdays with decryption"""
+        instance = cls()
+        
         with get_db() as conn:
             birthdays = conn.execute("""
                 SELECT * FROM birthdays 
@@ -93,44 +113,89 @@ class Birthday(EncryptedModelMixin):
                 ORDER BY name
             """, (user_id,)).fetchall()
             
-            return [dict(birthday) for birthday in birthdays]
+            result = []
+            for birthday in birthdays:
+                birthday_dict = dict(birthday)
+                # Decrypt fields for display
+                decrypted_data = instance._process_fields_for_display(
+                    birthday_dict, 'birthdays', cls.ENCRYPTED_FIELDS
+                )
+                birthday_dict.update(decrypted_data)
+                result.append(birthday_dict)
+            
+            return result
     
-    @staticmethod
-    def get_birthday(birthday_id: int, user_id: int) -> Optional[Dict]:
-        """Get a specific birthday"""
+    @classmethod
+    def get_birthday(cls, birthday_id: int, user_id: int) -> Optional[Dict]:
+        """Get a specific birthday with decryption"""
+        instance = cls()
+        
         with get_db() as conn:
             birthday = conn.execute(
                 "SELECT * FROM birthdays WHERE id = ? AND user_id = ?",
                 (birthday_id, user_id)
             ).fetchone()
-            return dict(birthday) if birthday else None
+            
+            if not birthday:
+                return None
+            
+            birthday_dict = dict(birthday)
+            # Decrypt fields for display
+            decrypted_data = instance._process_fields_for_display(
+                birthday_dict, 'birthdays', cls.ENCRYPTED_FIELDS
+            )
+            birthday_dict.update(decrypted_data)
+            
+            return birthday_dict
     
-    @staticmethod
-    def create_birthday(user_id: int, name: str, birth_date: str, 
+    @classmethod
+    def create_birthday(cls, user_id: int, name: str, birth_date: str, 
                        relationship_type: str = None, notes: str = None) -> int:
-        """Create a new birthday"""
+        """Create a new birthday with encryption"""
+        instance = cls()
+        
+        # Prepare data for storage with encryption
+        birthday_data = {
+            'name': name.strip(),
+            'notes': notes.strip() if notes else ''
+        }
+        encrypted_data = instance._process_fields_for_storage(
+            birthday_data, 'birthdays', cls.ENCRYPTED_FIELDS
+        )
+        
         with get_db() as conn:
             cursor = conn.execute("""
                 INSERT INTO birthdays (user_id, name, birth_date, relationship_type, notes)
                 VALUES (?, ?, ?, ?, ?)
-            """, (user_id, name.strip(), birth_date, 
+            """, (user_id, encrypted_data['name'], birth_date, 
                   relationship_type.strip() if relationship_type else None,
-                  notes.strip() if notes else None))
+                  encrypted_data['notes'] or None))
             conn.commit()
             return cursor.lastrowid
     
-    @staticmethod
-    def update_birthday(birthday_id: int, user_id: int, name: str, birth_date: str,
+    @classmethod
+    def update_birthday(cls, birthday_id: int, user_id: int, name: str, birth_date: str,
                        relationship_type: str = None, notes: str = None) -> bool:
-        """Update an existing birthday"""
+        """Update an existing birthday with encryption"""
+        instance = cls()
+        
+        # Prepare data for storage with encryption
+        birthday_data = {
+            'name': name.strip(),
+            'notes': notes.strip() if notes else ''
+        }
+        encrypted_data = instance._process_fields_for_storage(
+            birthday_data, 'birthdays', cls.ENCRYPTED_FIELDS
+        )
+        
         with get_db() as conn:
             cursor = conn.execute("""
                 UPDATE birthdays 
                 SET name = ?, birth_date = ?, relationship_type = ?, notes = ?
                 WHERE id = ? AND user_id = ?
-            """, (name.strip(), birth_date,
+            """, (encrypted_data['name'], birth_date,
                   relationship_type.strip() if relationship_type else None,
-                  notes.strip() if notes else None,
+                  encrypted_data['notes'] or None,
                   birthday_id, user_id))
             conn.commit()
             return cursor.rowcount > 0

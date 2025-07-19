@@ -77,21 +77,37 @@ class DailyNote(EncryptedModelMixin):
             conn.commit()
             return cursor.rowcount > 0
     
-    @staticmethod
-    def get_recent_notes(user_id: int, limit: int = 7) -> List[Dict]:
-        """Get recent notes for user (for navigation/history)"""
+    @classmethod
+    def get_recent_notes(cls, user_id: int, limit: int = 7) -> List[Dict]:
+        """Get recent notes for user with decryption (for navigation/history)"""
+        instance = cls()
+        
         with get_db() as conn:
             notes = conn.execute("""
-                SELECT note_date, 
-                       CASE WHEN LENGTH(content) > 100 
-                            THEN SUBSTR(content, 1, 100) || '...'
-                            ELSE content 
-                       END as preview,
-                       updated_at
+                SELECT note_date, content, updated_at
                 FROM daily_notes 
                 WHERE user_id = ? AND content IS NOT NULL AND content != ''
                 ORDER BY note_date DESC 
                 LIMIT ?
             """, (user_id, limit)).fetchall()
             
-            return [dict(note) for note in notes]
+            result = []
+            for note in notes:
+                note_dict = dict(note)
+                
+                # Decrypt content first
+                decrypted_data = instance._process_fields_for_display(
+                    note_dict, 'notes', cls.ENCRYPTED_FIELDS
+                )
+                note_dict.update(decrypted_data)
+                
+                # Create preview from decrypted content
+                content = note_dict.get('content', '')
+                if len(content) > 100:
+                    note_dict['preview'] = content[:100] + '...'
+                else:
+                    note_dict['preview'] = content
+                
+                result.append(note_dict)
+            
+            return result

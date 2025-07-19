@@ -59,11 +59,24 @@ class Reading(EncryptedModelMixin):
                         date_added DESC
                 """, (user_id,)).fetchall()
             
-            return [dict(book) for book in books]
+            # Decrypt fields for display
+            instance = cls()
+            result = []
+            for book in books:
+                book_dict = dict(book)
+                decrypted_data = instance._process_fields_for_display(
+                    book_dict, 'reading', cls.ENCRYPTED_FIELDS
+                )
+                book_dict.update(decrypted_data)
+                result.append(book_dict)
+            
+            return result
     
-    @staticmethod
-    def get_books_by_status(user_id: int) -> Dict[str, List[Dict]]:
-        """Get reading list organized by status"""
+    @classmethod
+    def get_books_by_status(cls, user_id: int) -> Dict[str, List[Dict]]:
+        """Get reading list organized by status with decryption"""
+        instance = cls()
+        
         with get_db() as conn:
             books = conn.execute("""
                 SELECT * FROM reading_list 
@@ -79,6 +92,13 @@ class Reading(EncryptedModelMixin):
             
             for book in books:
                 book_dict = dict(book)
+                
+                # Decrypt fields for display
+                decrypted_data = instance._process_fields_for_display(
+                    book_dict, 'reading', cls.ENCRYPTED_FIELDS
+                )
+                book_dict.update(decrypted_data)
+                
                 # Calculate reading progress percentage
                 if book_dict['total_pages'] and book_dict['current_page']:
                     book_dict['progress_percentage'] = min(100, int((book_dict['current_page'] / book_dict['total_pages']) * 100))
@@ -91,28 +111,49 @@ class Reading(EncryptedModelMixin):
             
             return result
     
-    @staticmethod
-    def get_by_id(book_id: int, user_id: int) -> Optional[Dict]:
-        """Get specific book by ID for user"""
+    @classmethod
+    def get_by_id(cls, book_id: int, user_id: int) -> Optional[Dict]:
+        """Get specific book by ID for user with decryption"""
+        instance = cls()
+        
         with get_db() as conn:
             book = conn.execute("""
                 SELECT * FROM reading_list 
                 WHERE id = ? AND user_id = ? AND deleted_at IS NULL
             """, (book_id, user_id)).fetchone()
-            return dict(book) if book else None
+            
+            if not book:
+                return None
+            
+            book_dict = dict(book)
+            # Decrypt fields for display
+            decrypted_data = instance._process_fields_for_display(
+                book_dict, 'reading', cls.ENCRYPTED_FIELDS
+            )
+            book_dict.update(decrypted_data)
+            
+            return book_dict
     
-    @staticmethod
-    def update(book_id: int, user_id: int, title: str, author: str, 
+    @classmethod
+    def update(cls, book_id: int, user_id: int, title: str, author: str, 
                total_pages: int = None, current_page: int = None, status: str = None,
                rating: int = None, notes: str = None) -> bool:
-        """Update book details"""
+        """Update book details with encryption"""
+        instance = cls()
+        
+        # Prepare data for storage with encryption
+        book_data = {'notes': notes or ''}
+        encrypted_data = instance._process_fields_for_storage(
+            book_data, 'reading', cls.ENCRYPTED_FIELDS
+        )
+        
         with get_db() as conn:
             cursor = conn.execute("""
                 UPDATE reading_list 
                 SET title = ?, author = ?, total_pages = ?, current_page = ?, 
                     status = ?, rating = ?, notes = ?, updated_at = CURRENT_TIMESTAMP
                 WHERE id = ? AND user_id = ? AND deleted_at IS NULL
-            """, (title, author, total_pages, current_page, status, rating, notes, book_id, user_id))
+            """, (title, author, total_pages, current_page, status, rating, encrypted_data['notes'] or None, book_id, user_id))
             conn.commit()
             return cursor.rowcount > 0
     

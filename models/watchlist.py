@@ -17,7 +17,9 @@ class Watchlist(EncryptedModelMixin):
     
     @classmethod
     def get_user_watchlist(cls, user_id: int, status: str = None) -> List[Dict]:
-        """Get watchlist items for a user, optionally filtered by status"""
+        """Get watchlist items for a user with decryption, optionally filtered by status"""
+        instance = cls()
+        
         with get_db() as conn:
             if status:
                 items = conn.execute("""
@@ -38,11 +40,23 @@ class Watchlist(EncryptedModelMixin):
                         date_added DESC
                 """, (user_id,)).fetchall()
             
-            return [dict(item) for item in items]
+            result = []
+            for item in items:
+                item_dict = dict(item)
+                # Decrypt fields for display
+                decrypted_data = instance._process_fields_for_display(
+                    item_dict, 'watchlist', cls.ENCRYPTED_FIELDS
+                )
+                item_dict.update(decrypted_data)
+                result.append(item_dict)
+            
+            return result
     
-    @staticmethod
-    def get_watchlist_by_status(user_id: int) -> Dict[str, List[Dict]]:
-        """Get watchlist items organized by status"""
+    @classmethod
+    def get_watchlist_by_status(cls, user_id: int) -> Dict[str, List[Dict]]:
+        """Get watchlist items organized by status with decryption"""
+        instance = cls()
+        
         with get_db() as conn:
             items = conn.execute("""
                 SELECT * FROM watchlist 
@@ -58,27 +72,55 @@ class Watchlist(EncryptedModelMixin):
             
             for item in items:
                 item_dict = dict(item)
+                
+                # Decrypt fields for display
+                decrypted_data = instance._process_fields_for_display(
+                    item_dict, 'watchlist', cls.ENCRYPTED_FIELDS
+                )
+                item_dict.update(decrypted_data)
+                
                 if item['status'] in result:
                     result[item['status']].append(item_dict)
             
             return result
     
-    @staticmethod
-    def get_watchlist_item(item_id: int, user_id: int) -> Optional[Dict]:
-        """Get a specific watchlist item"""
+    @classmethod
+    def get_watchlist_item(cls, item_id: int, user_id: int) -> Optional[Dict]:
+        """Get a specific watchlist item with decryption"""
+        instance = cls()
+        
         with get_db() as conn:
             item = conn.execute(
                 "SELECT * FROM watchlist WHERE id = ? AND user_id = ?",
                 (item_id, user_id)
             ).fetchone()
-            return dict(item) if item else None
+            
+            if not item:
+                return None
+            
+            item_dict = dict(item)
+            # Decrypt fields for display
+            decrypted_data = instance._process_fields_for_display(
+                item_dict, 'watchlist', cls.ENCRYPTED_FIELDS
+            )
+            item_dict.update(decrypted_data)
+            
+            return item_dict
     
-    @staticmethod
-    def create_watchlist_item(user_id: int, title: str, item_type: str,
+    @classmethod
+    def create_watchlist_item(cls, user_id: int, title: str, item_type: str,
                             genre: str = None, priority: str = 'medium',
                             total_episodes: int = None, release_year: int = None,
                             notes: str = None) -> int:
-        """Create a new watchlist item"""
+        """Create a new watchlist item with encryption"""
+        instance = cls()
+        
+        # Prepare data for storage with encryption
+        watchlist_data = {'notes': notes.strip() if notes else ''}
+        encrypted_data = instance._process_fields_for_storage(
+            watchlist_data, 'watchlist', cls.ENCRYPTED_FIELDS
+        )
+        
         with get_db() as conn:
             cursor = conn.execute("""
                 INSERT INTO watchlist (user_id, title, type, genre, priority, 
@@ -89,17 +131,19 @@ class Watchlist(EncryptedModelMixin):
                   priority,
                   total_episodes,
                   release_year,
-                  notes.strip() if notes else None))
+                  encrypted_data['notes'] or None))
             conn.commit()
             return cursor.lastrowid
     
-    @staticmethod
-    def update_watchlist_item(item_id: int, user_id: int, title: str, item_type: str,
+    @classmethod
+    def update_watchlist_item(cls, item_id: int, user_id: int, title: str, item_type: str,
                             genre: str = None, status: str = None, priority: str = None,
                             rating: int = None, current_episode: int = None,
                             total_episodes: int = None, release_year: int = None,
                             notes: str = None) -> bool:
-        """Update an existing watchlist item"""
+        """Update an existing watchlist item with encryption"""
+        instance = cls()
+        
         with get_db() as conn:
             # Build dynamic update query
             updates = []
@@ -143,8 +187,13 @@ class Watchlist(EncryptedModelMixin):
                 params.append(release_year)
             
             if notes is not None:
+                # Handle encryption for notes field
+                watchlist_data = {'notes': notes.strip() if notes else ''}
+                encrypted_data = instance._process_fields_for_storage(
+                    watchlist_data, 'watchlist', cls.ENCRYPTED_FIELDS
+                )
                 updates.append('notes = ?')
-                params.append(notes.strip() if notes else None)
+                params.append(encrypted_data['notes'] or None)
             
             params.extend([item_id, user_id])
             

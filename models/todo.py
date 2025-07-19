@@ -119,8 +119,16 @@ class Todo(EncryptedModelMixin):
                 'completed': []
             }
             
+            instance = cls()
+            
             for todo in todos:
                 todo_dict = dict(todo)
+                
+                # Decrypt fields for display
+                decrypted_data = instance._process_fields_for_display(
+                    todo_dict, 'todos', cls.ENCRYPTED_FIELDS
+                )
+                todo_dict.update(decrypted_data)
                 
                 if todo_dict['completed']:
                     organized['completed'].append(todo_dict)
@@ -136,27 +144,53 @@ class Todo(EncryptedModelMixin):
             
             return organized
     
-    @staticmethod
-    def get_by_id(todo_id: int, user_id: int) -> Optional[Dict]:
-        """Get specific todo by ID for user"""
+    @classmethod
+    def get_by_id(cls, todo_id: int, user_id: int) -> Optional[Dict]:
+        """Get specific todo by ID for user with decryption"""
+        instance = cls()
+        
         with get_db() as conn:
             todo = conn.execute(
                 "SELECT * FROM todos WHERE id = ? AND user_id = ? AND deleted_at IS NULL", 
                 (todo_id, user_id)
             ).fetchone()
-            return dict(todo) if todo else None
+            
+            if not todo:
+                return None
+            
+            todo_dict = dict(todo)
+            # Decrypt fields for display
+            decrypted_data = instance._process_fields_for_display(
+                todo_dict, 'todos', cls.ENCRYPTED_FIELDS
+            )
+            todo_dict.update(decrypted_data)
+            
+            return todo_dict
     
-    @staticmethod
-    def update(todo_id: int, user_id: int, title: str, description: str = None, 
+    @classmethod
+    def update(cls, todo_id: int, user_id: int, title: str, description: str = None, 
                priority: str = 'medium', due_date: str = None, category: str = None) -> bool:
-        """Update todo"""
+        """Update todo with encryption"""
+        instance = cls()
+        
+        # Prepare data for storage with encryption
+        todo_data = {
+            'title': title,
+            'description': description or '',
+            'category': category or ''
+        }
+        encrypted_data = instance._process_fields_for_storage(
+            todo_data, 'todos', cls.ENCRYPTED_FIELDS
+        )
+        
         with get_db() as conn:
             cursor = conn.execute(
                 """UPDATE todos 
                    SET title = ?, description = ?, priority = ?, due_date = ?, category = ?, 
                        updated_at = CURRENT_TIMESTAMP
                    WHERE id = ? AND user_id = ? AND deleted_at IS NULL""",
-                (title, description, priority, due_date, category, todo_id, user_id)
+                (encrypted_data['title'], encrypted_data['description'] or None, 
+                 priority, due_date, encrypted_data['category'] or None, todo_id, user_id)
             )
             conn.commit()
             return cursor.rowcount > 0
