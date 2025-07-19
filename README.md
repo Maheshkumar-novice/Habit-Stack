@@ -8,6 +8,9 @@ Personal life organizer with habit tracking, daily notes, todo list management, 
 # Install dependencies
 uv sync
 
+# Initialize database (creates encryption tables)
+uv run python -c "from database import init_db; init_db()"
+
 # Run the application
 uv run python app.py
 
